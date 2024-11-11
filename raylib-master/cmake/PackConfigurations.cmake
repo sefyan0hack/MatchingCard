@@ -15,4 +15,3 @@ SET(CPACK_DEBIAN_PACKAGE_SHLIBDEPS OFF) # can be used to generate deps, slow and
 SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libatomic1, libc6, libglfw3, libglu1-mesa | libglu1, libglx0, libopengl0")
 SET(CPACK_DEBIAN_PACKAGE_NAME "lib${CPACK_PACKAGE_NAME}-dev")
 SET(CPACK_RPM_PACKAGE_NAME "lib${CPACK_PACKAGE_NAME}-devel")
-include(CPack)
