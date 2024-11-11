@@ -14,6 +14,10 @@ set(WAR_PANIC "-Wall -Wextra -pedantic")
 set(CMAKE_CXX_FLAGS_RELEASE "${WAR_PANIC} -O3 -march=native -mwindows")  # Optimize for GCC/Clang
 set(CMAKE_CXX_FLAGS_DEBUG "${WAR_PANIC} -O0 -g3 -ggdb ")  # Debugging for GCC/Clang
 
+# Add the -static flag for complete static linking
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
+
+set(BUILD_SHARED_LIBS OFF)  # Turn off shared library builds
 add_subdirectory(${CMAKE_SOURCE_DIR}/raylib-master)
 
 add_executable(CardMatching src/main.cpp)
