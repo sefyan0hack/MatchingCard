@@ -26,12 +26,15 @@ int main(){
     std::random_device rd;
     std::default_random_engine rng(rd());
 
-    int screenWidth = 660;
-    int screenHeight = 660;
+    int screenWidth = 640;
+    int screenHeight = 720;
+    // int screenWidth = 660;
+    // int screenHeight = 660;
 
     SetConfigFlags(FLAG_MSAA_4X_HINT);
 
     InitWindow(screenWidth, screenHeight, "Game");
+    SetWindowPosition(GetMonitorWidth(GetCurrentMonitor())/2 - screenWidth/2, 26);
     SetTargetFPS(FPS);
     InitResouces();
 
@@ -39,16 +42,6 @@ int main(){
     int textWidth = MeasureText(GameName, TitleFontSize);
     int textX = (screenWidth - textWidth) / 2;
 
-    size_t dim = 5;
-    size_t gab = 1;
-
-    int rectx = 0 + padding;
-    int recty = 0 + 100 + padding;
-
-    int rectWith = screenWidth - (2*padding);
-    int rectHeight = screenHeight - (2*padding) - 100;
-    int width_gab = rectWith - gab * dim;
-    int height_gab = rectHeight - gab * dim;
 
     std::vector<const char*> imgsNames{
         "../res/Gojo.png",
@@ -65,6 +58,17 @@ int main(){
 
     std::vector<Texture2D> texs;
     
+    size_t dim = imgsNames.size()/2;
+    size_t gab = 1;
+
+    int rectx = 0 + padding;
+    int recty = 0 + 100 + padding;
+
+    int rectWith = screenWidth - (2*padding);
+    int rectHeight = screenHeight - (2*padding) - 100;
+    int width_gab = rectWith - gab * dim;
+    int height_gab = rectHeight - gab * dim;
+
     for (const auto& img : imgsNames)
     {   
         texs.push_back(LoadTextureWithSize(img, width_gab/5, height_gab/5));
@@ -124,11 +128,14 @@ int main(){
                     curr = {(float)x, (float)y, (float)width_gab/5, (float)height_gab/5 };
 
                     // DrawRectangleRec(curr, { 102, 191, 255, 155});
-                    DrawRectangleRounded(curr, 0.1f, 60, { 102, 191, 255, 155});
+                    if(CheckCollisionPointRec(GetMousePosition(), curr)){
+                        DrawRectangleRounded(curr, 0.1f, 60, {122, 211, 255, 255});
+                    }else{
+                        DrawRectangleRounded(curr, 0.1f, 60, { 102, 191, 255, 255});
+                    }
                     // DrawTexture(map[i * (dim-1) + j].t, x, y, WHITE);
 
                     auto mousePos = GetMousePosition();
-                    // if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
                     if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)){
                         //check if i pressed on the card to push it
                         if(CheckCollisionPointRec(mousePos, curr)){
