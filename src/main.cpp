@@ -136,7 +136,7 @@ int main(){
                     // DrawTexture(map[i * (dim-1) + j].t, x, y, WHITE);
 
                     auto mousePos = GetMousePosition();
-                    if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)){
+                    if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
                         //check if i pressed on the card to push it
                         if(CheckCollisionPointRec(mousePos, curr)){
                             if ( not card.active)
