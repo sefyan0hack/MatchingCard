@@ -35,11 +35,13 @@ Texture2D LoadResexture(AssInfo inf) {
 
 enum AssetName{
     REFRECH = 0,
+    X,
     Asset_limit
 };
 
 inline static AssInfo AssetsInfo[ASSETS_COUNT] {
     [REFRECH] = {"../res/refresh-icon-10853.png", 64, 64},
+    [X] = {"../res/X.png", 400, 400},
 };
 
 inline static std::array<Texture2D, ASSETS_COUNT> Assets;
