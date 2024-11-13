@@ -2,36 +2,27 @@
 #include <raylib.h>
 #include <array>
 
+#include <all_res.hpp>
+
+#define LoadMEx(nm, name, w, h) Load(nm, img_##name##_png, img_##name##_png_len, w, h)
+#define LoadM(name) Load(img_##name##_png, img_##name##_png_len)
+
 constexpr size_t ASSETS_COUNT = 32;
 
 struct AssInfo
 {
-    const char* name;
-    size_t w, h;
+    // const char* name;
+    int w, h;
 };
 
 
-Texture2D LoadTextureWithSize(const char *fileName, int width, int height) {
-
-    Image image = LoadImage(fileName);
-    ImageResize(&image, width, height);
-
-    Texture2D texture = LoadTextureFromImage(image);
-    UnloadImage(image);
-
+Texture2D LoadTextureFromImageWithSize(Image img, int width, int height) {
+    ImageResize(&img, width, height);
+    Texture2D texture = LoadTextureFromImage(img);
+    // UnloadImage(img);
     return texture;
 }
 
-Texture2D LoadResexture(AssInfo inf) {
-
-    Image image = LoadImage(inf.name);
-    ImageResize(&image, inf.w, inf.h);
-
-    Texture2D texture = LoadTextureFromImage(image);
-    UnloadImage(image);
-
-    return texture;
-}
 
 enum AssetName{
     REFRECH = 0,
@@ -40,17 +31,26 @@ enum AssetName{
 };
 
 inline static AssInfo AssetsInfo[ASSETS_COUNT];
+inline static std::array<Texture2D, ASSETS_COUNT> Assets;
 
-inline constexpr void Load(AssetName name, const char* path, size_t w, size_t h){
-    AssetsInfo[name] = AssInfo { path, w, h };
+inline constexpr Image Load(const unsigned char* nameArr, int Datasize, int w = -1, int h = -1){
+    Image image = LoadImageFromMemory(".png", nameArr, Datasize);
+    if( !(w == -1 || h == -1) ) ImageResize(&image, w, h);
+    return image;
 }
 
-// inline static AssInfo AssetsInfo[ASSETS_COUNT] {
-//     [REFRECH] = {"../res/refresh-icon-10853.png", 64, 64},
-//     [X] = {"../res/X.png", 400, 400},
-// };
+inline constexpr Image Load(AssetName name, const unsigned char* nameArr, int Datasize, int w = -1, int h = -1){
+    Image image = Load(nameArr, Datasize, w, h);
+    AssetsInfo[name] = AssInfo { w, h };
+    return image;
+}
 
-inline static std::array<Texture2D, ASSETS_COUNT> Assets;
+
+inline static std::array<Image, ASSETS_COUNT> AssetsIMG {
+    LoadMEx(REFRECH, refresh_icon, 64, 64),
+    LoadMEx(X, XX, 400, 400),
+};
+
 
 AssInfo GetResInfo(AssetName name){
     return AssetsInfo[name];
@@ -59,10 +59,20 @@ AssInfo GetResInfo(AssetName name){
 void InitResouces(){
     static_assert(ASSETS_COUNT >= Asset_limit);
 
-    Load(REFRECH, "../res/refresh-icon-10853.png", 64, 64);
-    Load(X, "../res/X.png", 400, 400);
-
     for(size_t i = 0; i < Asset_limit; i++){
-        Assets[i] = LoadResexture(AssetsInfo[i]);
+        Assets[i] = LoadTextureFromImage(AssetsIMG[i]);
     }
 }
+
+inline static std::vector<Image> Cardimgs{
+    LoadM(Gojo),
+    LoadM(Jujutsu_Kaisen),
+    LoadM(obito_naruto_akatsuki),
+    LoadM(geto_young_manga),
+    LoadM(itachi),
+    LoadM(Naruto),
+    LoadM(Sasuke_Uchiha),
+    LoadM(sakura_boruto),
+    LoadM(boruto),
+    LoadM(evolved_garou),
+};

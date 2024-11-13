@@ -22,3 +22,5 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/raylib-master)
 
 add_executable(CardMatching src/main.cpp)
 target_link_libraries(CardMatching raylib)
+
+include_directories("${CMAKE_SOURCE_DIR}/res")

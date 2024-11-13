@@ -43,22 +43,9 @@ int main(){
     int textX = (screenWidth - textWidth) / 2;
 
 
-    std::vector<const char*> imgsNames{
-        "../res/Gojo.png",
-        "../res/Jujutsu-Kaisen-sukuna-flame-arrow.png",
-        "../res/obito-naruto-akatsuki-black-and-white.png",
-        "../res/geto-young-manga.png",
-        "../res/itachi_png_by_santiago84_daql6lg-pre.png",
-        "../res/Naruto_PNG.png",
-        "../res/Sasuke-Uchiha-PNG.png",
-        "../res/sakura_boruto_png.png",
-        "../res/boruto_png.png",
-        "../res/evolved-garou-png1.png",
-    };
-
     std::vector<Texture2D> texs;
     
-    size_t dim = imgsNames.size()/2;
+    size_t dim = Cardimgs.size()/2;
     size_t gab = 1;
 
     int rectx = 0 + padding;
@@ -69,9 +56,9 @@ int main(){
     int width_gab = rectWith - gab * dim;
     int height_gab = rectHeight - gab * dim;
 
-    for (const auto& img : imgsNames)
+    for (auto& img : Cardimgs)
     {   
-        texs.push_back(LoadTextureWithSize(img, width_gab/5, height_gab/5));
+        texs.push_back(LoadTextureFromImageWithSize(img, width_gab/5, height_gab/5));
     }
 
     std::vector<Card> map;

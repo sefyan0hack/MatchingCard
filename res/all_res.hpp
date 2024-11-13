@@ -1,0 +1,13 @@
+#pragma once
+#include "../res/c/Gojo.h"
+#include "../res/c/Jujutsu_Kaisen.h"
+#include "../res/c/Naruto.h"
+#include "../res/c/Sasuke_Uchiha.h"
+#include "../res/c/XX.h"
+#include "../res/c/boruto.h"
+#include "../res/c/evolved_garou.h"
+#include "../res/c/geto_young_manga.h"
+#include "../res/c/itachi.h"
+#include "../res/c/obito_naruto_akatsuki.h"
+#include "../res/c/refresh_icon.h"
+#include "../res/c/sakura_boruto.h"
