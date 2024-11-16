@@ -45,7 +45,7 @@ int main(){
 
     std::vector<Texture2D> texs;
     
-    size_t dim = Cardimgs.size()/2;
+    size_t dim = 5;
     size_t gab = 1;
 
     int rectx = 0 + padding;
@@ -56,9 +56,14 @@ int main(){
     int width_gab = rectWith - gab * dim;
     int height_gab = rectHeight - gab * dim;
 
-    for (auto& img : Cardimgs)
-    {   
-        texs.push_back(LoadTextureFromImageWithSize(img, width_gab/5, height_gab/5));
+    for (unsigned int i = 0; i < resources_count; i++)
+    {
+        auto r = resources[i];
+        if( r.type == IMG){
+            if(contains(r.path, "/cards/")){
+                texs.push_back(LoadTextureFromMemWithSize(r, width_gab/5, height_gab/5));
+            }
+        }
     }
 
     std::vector<Card> map;
@@ -93,14 +98,13 @@ int main(){
 
             Rectangle curr;
             
-            auto refAssetInfo = GetResInfo(REFRECH);
-            Rectangle refechBRec = { (float)(screenWidth - (float)refAssetInfo.w)/2, screenHeight -  (float)(screenHeight - height_gab)/2 - (float)refAssetInfo.h/2 , (float)refAssetInfo.w, (float)refAssetInfo.h};
+            Vector2 refAssetsize = {64, 64};
+            Rectangle refechBRec = { (float)(screenWidth - (float)refAssetsize.x)/2, screenHeight -  (float)(screenHeight - height_gab)/2 - (float)refAssetsize.y/2 , (float)refAssetsize.x, (float)refAssetsize.y};
             
             if(CheckCollisionPointRec(GetMousePosition(), refechBRec)){
-                DrawTexture(Assets[REFRECH], refechBRec.x, refechBRec.y, Fade(BLACK, 0.9f));
-                DrawTexture(Assets[REFRECH], refechBRec.x, refechBRec.y, Fade(BLACK, 0.9f));
+                DrawTextureEx(GetTexture("img/ui/refresh_icon.png"), {refechBRec.x, refechBRec.y}, 0.0f, 0.132f, Fade(BLACK, 0.9f));
             }else{
-                DrawTexture(Assets[REFRECH], refechBRec.x, refechBRec.y, BLACK);
+                DrawTextureEx(GetTexture("img/ui/refresh_icon.png"), {refechBRec.x, refechBRec.y}, 0.0f, 0.13f, BLACK);
             }
 
             for (size_t i = 0; i < dim; i++)

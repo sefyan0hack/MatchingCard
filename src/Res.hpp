@@ -1,78 +1,82 @@
 #pragma once
 #include <raylib.h>
 #include <array>
+#include <cstring>
 
 #include <all_res.hpp>
 
-#define LoadMEx(nm, name, w, h) Load(nm, img_##name##_png, img_##name##_png_len, w, h)
-#define LoadM(name) Load(img_##name##_png, img_##name##_png_len)
-
-constexpr size_t ASSETS_COUNT = 32;
+bool contains(const char* str, const char* subStr) {
+    return std::strstr(str, subStr) != nullptr;
+}
 
 struct AssInfo
 {
-    // const char* name;
+    const char* path;
     int w, h;
 };
 
 
-Texture2D LoadTextureFromImageWithSize(Image img, int width, int height) {
+Texture2D LoadTextureFromMemWithSize(Resource r, int width, int height) {
+    Image img = LoadImageFromMemory(".png", r.data, r.size);
     ImageResize(&img, width, height);
     Texture2D texture = LoadTextureFromImage(img);
-    // UnloadImage(img);
+    UnloadImage(img);
     return texture;
 }
 
+// inline static AssInfo AssetsInfo[resources_count];
+inline static std::array<Texture2D, resources_count> Assets;
 
-enum AssetName{
-    REFRECH = 0,
-    X,
-    Asset_limit
-};
+// inline constexpr Image LoadIMG(const unsigned char* nameArr, int Datasize, int w = -1, int h = -1){
+//     Image image = LoadImageFromMemory(".png", nameArr, Datasize);
+//     if( !(w == -1 || h == -1) ) ImageResize(&image, w, h);
+//     return image;
+// }
 
-inline static AssInfo AssetsInfo[ASSETS_COUNT];
-inline static std::array<Texture2D, ASSETS_COUNT> Assets;
+// inline constexpr Image LoadIMG(const unsigned char* nameArr, int Datasize, int w = -1, int h = -1){
+//     Image image = LoadIMG(nameArr, Datasize, w, h);
+//     AssetsInfo[name] = AssInfo { w, h };
+//     return image;
+// }
 
-inline constexpr Image Load(const unsigned char* nameArr, int Datasize, int w = -1, int h = -1){
-    Image image = LoadImageFromMemory(".png", nameArr, Datasize);
-    if( !(w == -1 || h == -1) ) ImageResize(&image, w, h);
-    return image;
-}
-
-inline constexpr Image Load(AssetName name, const unsigned char* nameArr, int Datasize, int w = -1, int h = -1){
-    Image image = Load(nameArr, Datasize, w, h);
-    AssetsInfo[name] = AssInfo { w, h };
-    return image;
-}
-
-
-inline static std::array<Image, ASSETS_COUNT> AssetsIMG {
-    LoadMEx(REFRECH, refresh_icon, 64, 64),
-    LoadMEx(X, XX, 400, 400),
-};
-
-
-AssInfo GetResInfo(AssetName name){
-    return AssetsInfo[name];
-}
+// AssInfo GetResInfo(AssetName name){
+//     return AssetsInfo[name];
+// }
 
 void InitResouces(){
-    static_assert(ASSETS_COUNT >= Asset_limit);
-
-    for(size_t i = 0; i < Asset_limit; i++){
-        Assets[i] = LoadTextureFromImage(AssetsIMG[i]);
+    Image img;
+    for (unsigned int i = 0; i < resources_count; i++)
+    {
+        auto r = resources[i];
+        if( r.type == IMG){
+            if(contains(r.path, "/ui/")){
+                img = LoadImageFromMemory(".png", r.data, r.size);
+                Assets[i] = LoadTextureFromImage(img);
+                UnloadImage(img);
+            }
+        }
     }
 }
 
-inline static std::vector<Image> Cardimgs{
-    LoadM(Gojo),
-    LoadM(Jujutsu_Kaisen),
-    LoadM(obito_naruto_akatsuki),
-    LoadM(geto_young_manga),
-    LoadM(itachi),
-    LoadM(Naruto),
-    LoadM(Sasuke_Uchiha),
-    LoadM(sakura_boruto),
-    LoadM(boruto),
-    LoadM(evolved_garou),
-};
+
+constexpr bool is_eq_cstr(const char* str1, const char* str2) {
+    while (*str1 && (*str1 == *str2)) {
+        ++str1;
+        ++str2;
+    }
+    return *str1 == *str2;
+}
+
+Texture2D GetTexture(const char* path){
+    for (unsigned int i = 0; i < resources_count; i++)
+    {
+        auto r = resources[i];
+        if( r.type == IMG){
+            if(is_eq_cstr(path, r.path)){
+                return Assets[i];
+            }
+        }
+    }
+    printf("No ASSET FOUND : %s", path);
+    exit(1);
+}
