@@ -36,14 +36,12 @@ int main(){
     InitWindow(screenWidth, screenHeight, "Game");
     SetWindowPosition(GetMonitorWidth(GetCurrentMonitor())/2 - screenWidth/2, 26);
     SetTargetFPS(FPS);
-    InitResouces();
-
+    Init_Resources();
     int TitleFontSize = 30;
     int textWidth = MeasureText(GameName, TitleFontSize);
     int textX = (screenWidth - textWidth) / 2;
 
 
-    std::vector<Texture2D> texs;
     
     size_t dim = 5;
     size_t gab = 1;
@@ -56,23 +54,15 @@ int main(){
     int width_gab = rectWith - gab * dim;
     int height_gab = rectHeight - gab * dim;
 
-    for (unsigned int i = 0; i < resources_count; i++)
-    {
-        auto r = resources[i];
-        if( r.type == IMG){
-            if(contains(r.path, "/cards/")){
-                texs.push_back(LoadTextureFromMemWithSize(r, width_gab/5, height_gab/5));
-            }
-        }
-    }
-
+    std::vector<TexInfo> texs = GetTexturesfromfolder("cards", width_gab/5, height_gab/5);
+    
     std::vector<Card> map;
     
     for (size_t i = 0; i < texs.size(); i++)
     {
         for (size_t j = 0; j < 2; j++)
         {
-            map.push_back( Card {texs[i], (int)i, false} );
+            map.push_back( Card {texs[i].t, (int)i, false} );
         }
     }
     //sh
@@ -102,9 +92,9 @@ int main(){
             Rectangle refechBRec = { (float)(screenWidth - (float)refAssetsize.x)/2, screenHeight -  (float)(screenHeight - height_gab)/2 - (float)refAssetsize.y/2 , (float)refAssetsize.x, (float)refAssetsize.y};
             
             if(CheckCollisionPointRec(GetMousePosition(), refechBRec)){
-                DrawTextureEx(GetTexture("img/ui/refresh_icon.png"), {refechBRec.x, refechBRec.y}, 0.0f, 0.132f, Fade(BLACK, 0.9f));
+                DrawTextureEx(GetUiTex("refresh_icon.png"), {refechBRec.x, refechBRec.y}, 0.0f, 0.132f, Fade(BLACK, 0.9f));
             }else{
-                DrawTextureEx(GetTexture("img/ui/refresh_icon.png"), {refechBRec.x, refechBRec.y}, 0.0f, 0.13f, BLACK);
+                DrawTextureEx(GetUiTex("refresh_icon.png"), {refechBRec.x, refechBRec.y}, 0.0f, 0.13f, BLACK);
             }
 
             for (size_t i = 0; i < dim; i++)
@@ -153,7 +143,7 @@ int main(){
                     for (const auto &mcard : GoodMatsh)
                     {
                         const auto& [id, pos, _] = mcard;
-                        DrawTexture(texs[id], pos.x, pos.y, WHITE);
+                        DrawTexture(texs[id].t, pos.x, pos.y, WHITE);
                     }
 
                     //check if 2 cards are the same
