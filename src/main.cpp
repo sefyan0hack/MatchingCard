@@ -28,8 +28,6 @@ int main(){
 
     int screenWidth = 640;
     int screenHeight = 720;
-    // int screenWidth = 660;
-    // int screenHeight = 660;
 
     SetConfigFlags(FLAG_MSAA_4X_HINT);
 
@@ -65,7 +63,7 @@ int main(){
             map.push_back( Card {texs[i].t, (int)i, false} );
         }
     }
-    //sh
+    //shuffle
     for(unsigned char i = 0; i < (unsigned char)5; i++){
         std::shuffle(map.begin(), map.end(), rng);
     }
@@ -73,6 +71,10 @@ int main(){
     //                     id   position active
     std::vector<std::tuple<int, Vector2, bool*>> GoodMatsh;
     std::string inf = "";
+    
+    float wrongTimer = 0.0f;
+    bool showWrong = false;
+
     while (!WindowShouldClose())
     {
         if (IsWindowResized() && !IsWindowFullscreen())
@@ -108,19 +110,17 @@ int main(){
 
                     curr = {(float)x, (float)y, (float)width_gab/5, (float)height_gab/5 };
 
-                    // DrawRectangleRec(curr, { 102, 191, 255, 155});
                     if(CheckCollisionPointRec(GetMousePosition(), curr)){
                         DrawRectangleRounded(curr, 0.1f, 60, {122, 211, 255, 255});
                     }else{
                         DrawRectangleRounded(curr, 0.1f, 60, { 102, 191, 255, 255});
                     }
-                    // DrawTexture(map[i * (dim-1) + j].t, x, y, WHITE);
 
                     auto mousePos = GetMousePosition();
                     if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
                         //check if i pressed on the card to push it
                         if(CheckCollisionPointRec(mousePos, curr)){
-                            if ( not card.active)
+                            if ( not card.active && showWrong == false)
                             {
                                 GoodMatsh.push_back( std::make_tuple( card.id, Vector2 {(float)x, (float)y}, &card.active ) );
                             }
@@ -138,39 +138,51 @@ int main(){
                             GoodMatsh.clear();
                         }
                     }
-                    
-                    //drwa only Good Matshed imgs
-                    for (const auto &mcard : GoodMatsh)
-                    {
-                        const auto& [id, pos, _] = mcard;
-                        DrawTexture(texs[id].t, pos.x, pos.y, WHITE);
-                    }
+                }
+            }
+            //drwa only Good Matshed imgs
+            for (const auto &mcard : GoodMatsh)
+            {
+                const auto& [id, pos, _] = mcard;
+                DrawTexture(texs[id].t, pos.x, pos.y, WHITE);
+            }
 
-                    //check if 2 cards are the same
-                    if(not GoodMatsh.empty() && GoodMatsh.size() >= 2){
-                        
-                        if(GoodMatsh.size() % 2 == 0){
-                            auto& [t1_id, t1_pos, t1_active] = *(GoodMatsh.end() - 1);
-                            auto& [t2_id, t2_pos, t2_active] = *(GoodMatsh.end() - 2);
+            //check if 2 cards are the same
+            if(not GoodMatsh.empty() && GoodMatsh.size() >= 2){
 
-                            if(t1_id == t2_id){
-                                if(t1_pos.x == t2_pos.x && t1_pos.y == t2_pos.y){
-                                    GoodMatsh.pop_back();
-                                }else{
-                                    *t1_active = true;
-                                    *t2_active = true;
-                                    continue;
-                                }
-                            }else{
-                                GoodMatsh.pop_back();
-                                GoodMatsh.pop_back();
-                            }
-                        }                        
+                if(GoodMatsh.size() % 2 == 0){
+                    auto& [t1_id, t1_pos, t1_active] = *(GoodMatsh.end() - 1);
+                    auto& [t2_id, t2_pos, t2_active] = *(GoodMatsh.end() - 2);
+                    if(t1_id == t2_id){
+                        if(t1_pos.x == t2_pos.x && t1_pos.y == t2_pos.y){
+                            GoodMatsh.pop_back();
+                        }else{
+                            *t1_active = true;
+                            *t2_active = true;
+                        }
+                    }else if (!showWrong) {
+                        showWrong = true;
+                        wrongTimer = 1.0f;
                     }
+                }                        
+            }
+
+            if (showWrong) {
+                wrongTimer -= GetFrameTime();
+                if (wrongTimer <= 0.0f) {
+                    showWrong = false;
+
+                    GoodMatsh.pop_back();
+                    GoodMatsh.pop_back();
                 }
             }
 
-            
+            // Draw the wrong texture
+            if (showWrong) {
+                auto tx = GetUiTex("XX.png");
+                float scale = 0.4f;
+                DrawTextureEx(tx, {GetScreenWidth()/2.0f - tx.width/2.0f*scale, GetScreenHeight()/2.0f - tx.height/2.0f*scale}, 0.0f, scale, Fade(WHITE, 0.8f));
+            }
 
             DrawText("Matching Card!", textX, padding, TitleFontSize, GOLD);
 
