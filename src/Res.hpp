@@ -75,3 +75,18 @@ const Texture2D& GetUiTex(const char* name){
     printf("this is unreachable in GetUiTex");
     exit(1);
 }
+
+Image GetImageFromRes(const char* name){
+    for (unsigned int i = 0; i < resources_count; i++)
+    {
+        auto r = resources[i];
+        if( r.type == IMG){
+            if(is_eq_cstr(r.path, name)){
+                return LoadImageFromMemory(".png", r.data, r.size);
+            }
+        }
+    }
+    
+    printf("Node image with name : %s", name);
+    exit(1);
+}

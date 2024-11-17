@@ -35,6 +35,8 @@ int main(){
     SetWindowPosition(GetMonitorWidth(GetCurrentMonitor())/2 - screenWidth/2, 26);
     SetTargetFPS(FPS);
     Init_Resources();
+    
+    SetWindowIcon(GetImageFromRes("img/ui/icon.png"));
     int TitleFontSize = 30;
     int textWidth = MeasureText(GameName, TitleFontSize);
     int textX = (screenWidth - textWidth) / 2;

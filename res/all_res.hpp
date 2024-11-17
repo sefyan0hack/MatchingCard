@@ -23,6 +23,7 @@ struct Resource {
 #include "../res/c/img/cards/obito_naruto_akatsuki.h"
 #include "../res/c/img/cards/sakura_boruto.h"
 #include "../res/c/img/cards/Sasuke_Uchiha.h"
+#include "../res/c/img/ui/icon.h"
 #include "../res/c/img/ui/refresh_icon.h"
 #include "../res/c/img/ui/XX.h"
 
@@ -37,7 +38,8 @@ inline static Resource resources[] {
   {7, IMG, "img/cards/obito_naruto_akatsuki.png", img_cards_obito_naruto_akatsuki_png, img_cards_obito_naruto_akatsuki_png_len},
   {8, IMG, "img/cards/sakura_boruto.png", img_cards_sakura_boruto_png, img_cards_sakura_boruto_png_len},
   {9, IMG, "img/cards/Sasuke_Uchiha.png", img_cards_Sasuke_Uchiha_png, img_cards_Sasuke_Uchiha_png_len},
-  {10, IMG, "img/ui/refresh_icon.png", img_ui_refresh_icon_png, img_ui_refresh_icon_png_len},
-  {11, IMG, "img/ui/XX.png", img_ui_XX_png, img_ui_XX_png_len},
+  {10, IMG, "img/ui/icon.png", img_ui_icon_png, img_ui_icon_png_len},
+  {11, IMG, "img/ui/refresh_icon.png", img_ui_refresh_icon_png, img_ui_refresh_icon_png_len},
+  {12, IMG, "img/ui/XX.png", img_ui_XX_png, img_ui_XX_png_len},
 };
 constexpr unsigned int resources_count = sizeof(resources)/ sizeof(resources[0]);
