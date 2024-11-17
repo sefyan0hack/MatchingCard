@@ -26,6 +26,7 @@ struct Resource {
 #include "../res/c/img/ui/icon.h"
 #include "../res/c/img/ui/refresh_icon.h"
 #include "../res/c/img/ui/XX.h"
+#include "../res/c/audio/click.h"
 
 inline static Resource resources[] {
   {0, IMG, "img/cards/boruto.png", img_cards_boruto_png, img_cards_boruto_png_len},
@@ -41,5 +42,6 @@ inline static Resource resources[] {
   {10, IMG, "img/ui/icon.png", img_ui_icon_png, img_ui_icon_png_len},
   {11, IMG, "img/ui/refresh_icon.png", img_ui_refresh_icon_png, img_ui_refresh_icon_png_len},
   {12, IMG, "img/ui/XX.png", img_ui_XX_png, img_ui_XX_png_len},
+  {13, AUDIO, "audio/click.wav", audio_click_wav, audio_click_wav_len},
 };
 constexpr unsigned int resources_count = sizeof(resources)/ sizeof(resources[0]);

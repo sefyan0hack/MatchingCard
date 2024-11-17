@@ -35,6 +35,7 @@ int main(){
     SetWindowPosition(GetMonitorWidth(GetCurrentMonitor())/2 - screenWidth/2, 26);
     SetTargetFPS(FPS);
     Init_Resources();
+    InitAudioDevice();
     
     SetWindowIcon(GetImageFromRes("img/ui/icon.png"));
     int TitleFontSize = 30;
@@ -199,7 +200,7 @@ int main(){
             
         EndDrawing();
     }
-
+    CloseAudioDevice();
     CloseWindow();
 
     return 0;
