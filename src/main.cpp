@@ -125,7 +125,10 @@ int main(){
 
                     auto mousePos = GetMousePosition();
                     if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                        PlaySound(clickSound);
+                        if(showWrong == false){
+                            PlaySound(clickSound);
+                        }
+
                         //check if i pressed on the card to push it
                         if(CheckCollisionPointRec(mousePos, curr)){
                             if ( not card.active && showWrong == false)

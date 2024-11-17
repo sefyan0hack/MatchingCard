@@ -11,7 +11,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(WAR_PANIC "-Wall -Wextra -pedantic")
 
 # Compiler-specific flags
-set(CMAKE_CXX_FLAGS_RELEASE "${WAR_PANIC} -O3  -mwindows")  # Optimize for GCC/Clang
+set(CMAKE_CXX_FLAGS_RELEASE "${WAR_PANIC} -O2 -s -flto -fdata-sections -ffunction-sections -Wl,--gc-sections -mwindows")  # Optimize for GCC/Clang
 set(CMAKE_CXX_FLAGS_DEBUG "${WAR_PANIC} -O0 -g3 -ggdb ")  # Debugging for GCC/Clang
 
 # Add the -static flag for complete static linking
