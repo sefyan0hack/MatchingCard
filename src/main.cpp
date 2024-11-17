@@ -78,6 +78,10 @@ int main(){
     float wrongTimer = 0.0f;
     bool showWrong = false;
 
+    Sound clickSound = GetSound("audio/click.wav");
+    Sound wrongSound = GetSound("audio/wrong.wav");
+    // Sound goodSound  = GetSound("audio/good.wav");
+
     while (!WindowShouldClose())
     {
         if (IsWindowResized() && !IsWindowFullscreen())
@@ -98,7 +102,7 @@ int main(){
             
             if(CheckCollisionPointRec(GetMousePosition(), refechBRec)){
                 DrawTextureEx(GetUiTex("refresh_icon.png"), {refechBRec.x, refechBRec.y}, 0.0f, 0.132f, Fade(BLACK, 0.9f));
-            }else{
+            } else{
                 DrawTextureEx(GetUiTex("refresh_icon.png"), {refechBRec.x, refechBRec.y}, 0.0f, 0.13f, BLACK);
             }
 
@@ -115,12 +119,13 @@ int main(){
 
                     if(CheckCollisionPointRec(GetMousePosition(), curr)){
                         DrawRectangleRounded(curr, 0.1f, 60, {122, 211, 255, 255});
-                    }else{
+                    } else{
                         DrawRectangleRounded(curr, 0.1f, 60, { 102, 191, 255, 255});
                     }
 
                     auto mousePos = GetMousePosition();
                     if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+                        PlaySound(clickSound);
                         //check if i pressed on the card to push it
                         if(CheckCollisionPointRec(mousePos, curr)){
                             if ( not card.active && showWrong == false)
@@ -151,32 +156,34 @@ int main(){
             }
 
             //check if 2 cards are the same
-            if(not GoodMatsh.empty() && GoodMatsh.size() >= 2){
+            if(not GoodMatsh.empty()){
 
                 if(GoodMatsh.size() % 2 == 0){
                     auto& [t1_id, t1_pos, t1_active] = *(GoodMatsh.end() - 1);
                     auto& [t2_id, t2_pos, t2_active] = *(GoodMatsh.end() - 2);
                     if(t1_id == t2_id){
-                        if(t1_pos.x == t2_pos.x && t1_pos.y == t2_pos.y){
-                            GoodMatsh.pop_back();
-                        }else{
+                        if(t1_pos.x != t2_pos.x || t1_pos.y != t2_pos.y){
                             *t1_active = true;
                             *t2_active = true;
+                        } else{
+                            GoodMatsh.pop_back();
                         }
-                    }else if (!showWrong) {
+                    } else if (!showWrong) {
                         showWrong = true;
                         wrongTimer = 1.0f;
+                        PlaySound(wrongSound);
                     }
-                }                        
+                }
             }
 
             if (showWrong) {
                 wrongTimer -= GetFrameTime();
                 if (wrongTimer <= 0.0f) {
                     showWrong = false;
-
-                    GoodMatsh.pop_back();
-                    GoodMatsh.pop_back();
+                    if (GoodMatsh.size() >= 2) {
+                        GoodMatsh.pop_back();
+                        GoodMatsh.pop_back();
+                    }
                 }
             }
 
@@ -194,8 +201,18 @@ int main(){
             inf.clear();
 
             if(GoodMatsh.size() == map.size()){
-                OpenURL("https://youtube.com");
-                exit(1);
+                static bool gameFinished = false;
+                if (!gameFinished) {
+                    OpenURL("https://youtube.com");
+                    gameFinished = true;
+                    std::shuffle(map.begin(), map.end(), rng);
+                    std::shuffle(map.begin(), map.end(), rng);
+                    for (auto &c : map)
+                    {
+                        c.active = false;
+                    }
+                    GoodMatsh.clear();
+                }
             }
             
         EndDrawing();

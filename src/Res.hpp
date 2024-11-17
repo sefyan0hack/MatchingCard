@@ -42,7 +42,7 @@ std::vector<TexInfo> GetTexturesfromfolder(const char* foldername, int width=-1,
         auto r = resources[i];
         if( r.type == IMG){
             if(contains(r.path, path_postfix.c_str())){
-                if(width != -1 || height != -1){
+                if(width != -1 && height != -1){
                     result.push_back({LoadTextureFromMemWithSize(r, width, height), strdup(r.path)});
                 }else{
                     Image img = LoadImageFromMemory(".png", r.data, r.size);
@@ -87,6 +87,21 @@ Image GetImageFromRes(const char* name){
         }
     }
     
-    printf("Node image with name : %s", name);
+    printf("No image with name : %s", name);
+    exit(1);
+}
+
+Sound GetSound(const char* name){
+    for (unsigned int i = 0; i < resources_count; i++)
+    {
+        auto r = resources[i];
+        if( r.type == AUDIO){
+            if(is_eq_cstr(r.path, name)){
+                return LoadSoundFromWave(LoadWaveFromMemory(".wav", r.data, r.size));
+            }
+        }
+    }
+
+    printf("No Sound with name : %s", name);
     exit(1);
 }
