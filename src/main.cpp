@@ -206,7 +206,7 @@ int main(){
             if(GoodMatsh.size() == map.size()){
                 static bool gameFinished = false;
                 if (!gameFinished) {
-                    OpenURL("https://youtube.com");
+                    OpenURL("https://github.com/sefyan0hack?tab=repositories");
                     gameFinished = true;
                     std::shuffle(map.begin(), map.end(), rng);
                     std::shuffle(map.begin(), map.end(), rng);

@@ -17,10 +17,25 @@ set(CMAKE_CXX_FLAGS_DEBUG "${WAR_PANIC} -O0 -g3 -ggdb ")  # Debugging for GCC/Cl
 # Add the -static flag for complete static linking
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
 
+set(RES_DIR ${CMAKE_SOURCE_DIR}/res)
+
+add_subdirectory(${RES_DIR})
+
+
 set(BUILD_SHARED_LIBS OFF)  # Turn off shared library builds
 add_subdirectory(${CMAKE_SOURCE_DIR}/raylib-master)
 
 add_executable(CardMatching src/main.cpp)
+
 target_link_libraries(CardMatching raylib)
 
-include_directories("${CMAKE_SOURCE_DIR}/res")
+target_include_directories(CardMatching PUBLIC "${CMAKE_SOURCE_DIR}/res")
+
+add_custom_target(PrepareResDir
+    COMMAND ${RES_DIR}/ResMan .
+    WORKING_DIRECTORY ${RES_DIR}
+    COMMENT "Preparing resources in the RES_DIR"
+)
+
+# Make sure CardMatching depends on the PrepareResDir
+add_dependencies(CardMatching PrepareResDir)

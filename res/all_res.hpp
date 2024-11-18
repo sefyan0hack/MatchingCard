@@ -9,43 +9,44 @@ struct Resource {
     int id;
     R_type type;
     const char* path;
-    unsigned char* data;
-    unsigned int size;
+    const unsigned char* data;
+    const unsigned int size;
 };
 
-#include "../res/c/img/cards/boruto.h"
-#include "../res/c/img/cards/evolved_garou.h"
-#include "../res/c/img/cards/geto_young_manga.h"
-#include "../res/c/img/cards/Gojo.h"
-#include "../res/c/img/cards/itachi.h"
-#include "../res/c/img/cards/Jujutsu_Kaisen.h"
-#include "../res/c/img/cards/Naruto.h"
-#include "../res/c/img/cards/obito_naruto_akatsuki.h"
-#include "../res/c/img/cards/sakura_boruto.h"
-#include "../res/c/img/cards/Sasuke_Uchiha.h"
-#include "../res/c/img/ui/icon.h"
-#include "../res/c/img/ui/refresh_icon.h"
-#include "../res/c/img/ui/XX.h"
-#include "../res/c/audio/click.h"
-#include "../res/c/audio/good.h"
-#include "../res/c/audio/wrong.h"
+#include "c/audio/click.h"
+#include "c/audio/good.h"
+#include "c/audio/wrong.h"
+#include "c/img/cards/boruto.h"
+#include "c/img/cards/evolved_garou.h"
+#include "c/img/cards/geto_young_manga.h"
+#include "c/img/cards/Gojo.h"
+#include "c/img/cards/itachi.h"
+#include "c/img/cards/Jujutsu_Kaisen.h"
+#include "c/img/cards/Naruto.h"
+#include "c/img/cards/obito_naruto_akatsuki.h"
+#include "c/img/cards/sakura_boruto.h"
+#include "c/img/cards/Sasuke_Uchiha.h"
+#include "c/img/ui/icon.h"
+#include "c/img/ui/refresh_icon.h"
+#include "c/img/ui/XX.h"
 
 inline static Resource resources[] {
-  {0, IMG, "img/cards/boruto.png", img_cards_boruto_png, img_cards_boruto_png_len},
-  {1, IMG, "img/cards/evolved_garou.png", img_cards_evolved_garou_png, img_cards_evolved_garou_png_len},
-  {2, IMG, "img/cards/geto_young_manga.png", img_cards_geto_young_manga_png, img_cards_geto_young_manga_png_len},
-  {3, IMG, "img/cards/Gojo.png", img_cards_Gojo_png, img_cards_Gojo_png_len},
-  {4, IMG, "img/cards/itachi.png", img_cards_itachi_png, img_cards_itachi_png_len},
-  {5, IMG, "img/cards/Jujutsu_Kaisen.png", img_cards_Jujutsu_Kaisen_png, img_cards_Jujutsu_Kaisen_png_len},
-  {6, IMG, "img/cards/Naruto.png", img_cards_Naruto_png, img_cards_Naruto_png_len},
-  {7, IMG, "img/cards/obito_naruto_akatsuki.png", img_cards_obito_naruto_akatsuki_png, img_cards_obito_naruto_akatsuki_png_len},
-  {8, IMG, "img/cards/sakura_boruto.png", img_cards_sakura_boruto_png, img_cards_sakura_boruto_png_len},
-  {9, IMG, "img/cards/Sasuke_Uchiha.png", img_cards_Sasuke_Uchiha_png, img_cards_Sasuke_Uchiha_png_len},
-  {10, IMG, "img/ui/icon.png", img_ui_icon_png, img_ui_icon_png_len},
-  {11, IMG, "img/ui/refresh_icon.png", img_ui_refresh_icon_png, img_ui_refresh_icon_png_len},
-  {12, IMG, "img/ui/XX.png", img_ui_XX_png, img_ui_XX_png_len},
-  {13, AUDIO, "audio/click.wav", audio_click_wav, audio_click_wav_len},
-  {14, AUDIO, "audio/good.wav", audio_good_wav, audio_good_wav_len},
-  {15, AUDIO, "audio/wrong.wav", audio_wrong_wav, audio_wrong_wav_len},
+	{0, AUDIO, "audio/click.wav", __audio_click, __audio_click_len },
+	{1, AUDIO, "audio/good.wav", __audio_good, __audio_good_len },
+	{2, AUDIO, "audio/wrong.wav", __audio_wrong, __audio_wrong_len },
+	{3, IMG, "img/cards/boruto.png", __img_cards_boruto, __img_cards_boruto_len },
+	{4, IMG, "img/cards/evolved_garou.png", __img_cards_evolved_garou, __img_cards_evolved_garou_len },
+	{5, IMG, "img/cards/geto_young_manga.png", __img_cards_geto_young_manga, __img_cards_geto_young_manga_len },
+	{6, IMG, "img/cards/Gojo.png", __img_cards_Gojo, __img_cards_Gojo_len },
+	{7, IMG, "img/cards/itachi.png", __img_cards_itachi, __img_cards_itachi_len },
+	{8, IMG, "img/cards/Jujutsu_Kaisen.png", __img_cards_Jujutsu_Kaisen, __img_cards_Jujutsu_Kaisen_len },
+	{9, IMG, "img/cards/Naruto.png", __img_cards_Naruto, __img_cards_Naruto_len },
+	{10, IMG, "img/cards/obito_naruto_akatsuki.png", __img_cards_obito_naruto_akatsuki, __img_cards_obito_naruto_akatsuki_len },
+	{11, IMG, "img/cards/sakura_boruto.png", __img_cards_sakura_boruto, __img_cards_sakura_boruto_len },
+	{12, IMG, "img/cards/Sasuke_Uchiha.png", __img_cards_Sasuke_Uchiha, __img_cards_Sasuke_Uchiha_len },
+	{13, IMG, "img/ui/icon.png", __img_ui_icon, __img_ui_icon_len },
+	{14, IMG, "img/ui/refresh_icon.png", __img_ui_refresh_icon, __img_ui_refresh_icon_len },
+	{15, IMG, "img/ui/XX.png", __img_ui_XX, __img_ui_XX_len },
 };
+
 constexpr unsigned int resources_count = sizeof(resources)/ sizeof(resources[0]);
