@@ -44,6 +44,10 @@ int main(int argc, char** argv){
         }
     }
     //
+    auto pathInclude = root / fs::path(FinalIncludeFile);
+    if(fs::exists(pathInclude)){
+        fs::remove(pathInclude);
+    }
     std::fstream include_file(root / fs::path(FinalIncludeFile), std::ios::trunc | std::ios::in | std::ios::out);
     if(include_file.fail()){
         ERROR("Could'nt Open : " << FinalIncludeFile);
