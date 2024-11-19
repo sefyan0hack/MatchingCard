@@ -48,7 +48,7 @@ int main(int argc, char** argv){
     if(fs::exists(pathInclude)){
         fs::remove(pathInclude);
     }
-    std::fstream include_file(root / fs::path(FinalIncludeFile), std::ios::trunc | std::ios::in | std::ios::out);
+    std::fstream include_file(pathInclude, std::ios::trunc | std::ios::in | std::ios::out);
     if(include_file.fail()){
         ERROR("Could'nt Open : " << FinalIncludeFile);
     }
