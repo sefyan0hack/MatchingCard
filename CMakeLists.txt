@@ -14,9 +14,10 @@ set(WAR_PANIC "-Wall -Wextra -pedantic")
 set(CMAKE_CXX_FLAGS_RELEASE "${WAR_PANIC} -O2 -s -flto -fdata-sections -ffunction-sections -Wl,--gc-sections -mwindows")  # Optimize for GCC/Clang
 set(CMAKE_CXX_FLAGS_DEBUG "${WAR_PANIC} -O0 -g3 -ggdb ")  # Debugging for GCC/Clang
 
-# Add the -static flag for complete static linking
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
-
+if(WIN32)
+    # Add the -static flag for complete static linking
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
+endif()
 set(RES_DIR ${CMAKE_SOURCE_DIR}/res)
 set(RES_BIN ${CMAKE_BINARY_DIR}/res)
 
