@@ -37,7 +37,7 @@ int main(int argc, char** argv){
     {
         INFO("Folder Exist : " << root_c);
 
-        if(fs::remove_all(root_c) == 0){
+        if(fs::remove_all(root_c) == 0 || fs::remove_all(root_c) == static_cast<std::uintmax_t>(-1)){
             ERROR("Could'nt remove " << root_c);
         }else{
             INFO("Folder Deleted : " << root_c);

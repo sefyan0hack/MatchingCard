@@ -37,4 +37,5 @@ add_custom_target(PrepareResDir
     COMMENT "Preparing resources in the RES_DIR"
 )
 
+add_dependencies(CardMatching PrepareResDir)
 add_dependencies(CardMatching ResMan)
