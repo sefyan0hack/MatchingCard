@@ -17,6 +17,10 @@ struct ResInfo
     std::string type;
 };
 
+bool between(std::time_t number, std::time_t bound1, std::time_t bound2) {
+    return number >= std::min(bound1, bound2) && number <= std::max(bound1, bound2);
+}
+
 std::vector<ResInfo> ress;
 
 constexpr const char* FinalIncludeFile = "all_res.hpp";
@@ -33,6 +37,38 @@ int main(int argc, char** argv){
 
     auto root = fs::path(resFolder);
     auto root_c = root / fs::path("c");
+    auto pathInclude = root / fs::path(FinalIncludeFile);
+    
+
+    if(fs::exists(pathInclude) && fs::exists(root_c)){
+
+        auto latwrite_c = fs::last_write_time(root_c);
+        auto latwrite_inc = fs::last_write_time(pathInclude);
+        auto sctplatwrite_c = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+            latwrite_c - std::filesystem::file_time_type::clock::now()
+            + std::chrono::system_clock::now()
+        );
+
+        auto sctplatwrite_inc = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+            latwrite_inc - std::filesystem::file_time_type::clock::now()
+            + std::chrono::system_clock::now()
+        );
+
+        std::time_t latwrite_c_cftime = std::chrono::system_clock::to_time_t(sctplatwrite_c);
+        std::time_t latwrite_inc_cftime = std::chrono::system_clock::to_time_t(sctplatwrite_inc);
+
+        std::time_t eps = 10;
+        if( between(latwrite_c_cftime, latwrite_inc_cftime + eps, latwrite_inc_cftime - eps) 
+            || between(latwrite_inc_cftime, latwrite_c_cftime + eps, latwrite_c_cftime - eps)){
+            INFO("Every Thing Up To Date :)");
+            return 0;
+        }
+
+        if(fs::remove(pathInclude) == false){
+            INFO("Can't remove : " << pathInclude.lexically_normal().generic_string() );
+        }
+    }
+
     if (fs::exists(root_c))
     {
         INFO("Folder Exist : " << root_c);
@@ -44,10 +80,6 @@ int main(int argc, char** argv){
         }
     }
     //
-    auto pathInclude = root / fs::path(FinalIncludeFile);
-    if(fs::exists(pathInclude)){
-        fs::remove(pathInclude);
-    }
     std::fstream include_file(pathInclude, std::ios::trunc | std::ios::in | std::ios::out);
     if(include_file.fail()){
         ERROR("Could'nt Open : " << FinalIncludeFile);
