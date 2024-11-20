@@ -55,7 +55,10 @@ int main(){
     int width_gab = rectWith - gab * dim;
     int height_gab = rectHeight - gab * dim;
 
-    std::vector<TexInfo> texs = GetTexturesfromfolder("cards", width_gab/5, height_gab/5);
+    auto texs_width =  width_gab/5.0f;
+    auto texs_height =  height_gab/5.0f;
+
+    std::vector<TexInfo> texs = GetTexturesfromfolder("cards", texs_width, texs_height);
     
     std::vector<Card> map;
     
@@ -90,6 +93,18 @@ int main(){
             screenHeight = GetScreenHeight();
         }
 
+        rectWith = screenWidth - (2*padding);
+        rectHeight = screenHeight - (2*padding) - 100;
+
+        rectx = screenWidth * 0.02f + padding;
+        recty = screenHeight * 0.15f + padding;
+
+        width_gab = rectWith - gab * dim - rectx;
+        height_gab = rectHeight - gab * dim;
+
+
+        textX = (screenWidth - textWidth) / 2;
+
         BeginDrawing();
 
             ClearBackground({128,128,128, 255});
@@ -97,8 +112,8 @@ int main(){
 
             Rectangle curr;
             
-            Vector2 refAssetsize = {64, 64};
-            Rectangle refechBRec = { (float)(screenWidth - (float)refAssetsize.x)/2, screenHeight -  (float)(screenHeight - height_gab)/2 - (float)refAssetsize.y/2 , (float)refAssetsize.x, (float)refAssetsize.y};
+            Vector2 refAssetsize = {64.0f, 64.0f};
+            Rectangle refechBRec = { (screenWidth - refAssetsize.x)/2.0f, screenHeight -  (screenHeight - height_gab)/2.0f - refAssetsize.y/2.0f , (float)refAssetsize.x, (float)refAssetsize.y};
             
             if(CheckCollisionPointRec(GetMousePosition(), refechBRec)){
                 DrawTextureEx(GetUiTex("refresh_icon.png"), {refechBRec.x, refechBRec.y}, 0.0f, 0.132f, Fade(BLACK, 0.9f));
@@ -155,7 +170,8 @@ int main(){
             for (const auto &mcard : GoodMatsh)
             {
                 const auto& [id, pos, _] = mcard;
-                DrawTexture(texs[id].t, pos.x, pos.y, WHITE);
+                DrawTexturePro(texs[id].t, {0.0f, 0.0f, texs_width, texs_height}, {pos.x, pos.y, width_gab/5.0f, height_gab/5.0f}, {0.0f, 0.0f}, 0.0f, WHITE);
+                // DrawTexture(texs[id].t, pos.x, pos.y, WHITE);
             }
 
             //check if 2 cards are the same
