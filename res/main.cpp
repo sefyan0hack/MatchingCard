@@ -17,17 +17,14 @@ struct ResInfo
     std::string type;
 };
 
-bool between(std::time_t number, std::time_t bound1, std::time_t bound2) {
-    return number >= std::min(bound1, bound2) && number <= std::max(bound1, bound2);
-}
+bool between(std::time_t number, std::time_t bound1, std::time_t bound2);
+std::string replaceSymb(const fs::path& path);
+std::string File2Ccode(const fs::path& in, std::ofstream& outFile);
+bool needUpdate(const fs::path& include, const fs::path& rootc);
 
 std::vector<ResInfo> ress;
 
 constexpr const char* FinalIncludeFile = "all_res.hpp";
-
-constexpr char UnwantedSym[] = {
-    '\\', '/', '.' ,' ', '!', '!', '"', '@', '#', '$', '%', '&', '*', '(',')', '-', '=', '+', '`', ';', '~', '[', ']', '{', '}'
-};
 
 int main(int argc, char** argv){
     if(argc < 2){
@@ -40,34 +37,15 @@ int main(int argc, char** argv){
     auto pathInclude = root / fs::path(FinalIncludeFile);
     
 
-    if(fs::exists(pathInclude) && fs::exists(root_c)){
-
-        auto latwrite_c = fs::last_write_time(root_c);
-        auto latwrite_inc = fs::last_write_time(pathInclude);
-        auto sctplatwrite_c = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
-            latwrite_c - std::filesystem::file_time_type::clock::now()
-            + std::chrono::system_clock::now()
-        );
-
-        auto sctplatwrite_inc = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
-            latwrite_inc - std::filesystem::file_time_type::clock::now()
-            + std::chrono::system_clock::now()
-        );
-
-        std::time_t latwrite_c_cftime = std::chrono::system_clock::to_time_t(sctplatwrite_c);
-        std::time_t latwrite_inc_cftime = std::chrono::system_clock::to_time_t(sctplatwrite_inc);
-
-        std::time_t eps = 10;
-        if( between(latwrite_c_cftime, latwrite_inc_cftime + eps, latwrite_inc_cftime - eps) 
-            || between(latwrite_inc_cftime, latwrite_c_cftime + eps, latwrite_c_cftime - eps)){
-            INFO("Every Thing Up To Date :)");
-            return 0;
-        }
-
-        if(fs::remove(pathInclude) == false){
-            INFO("Can't remove : " << pathInclude.lexically_normal().generic_string() );
-        }
+    if( not needUpdate(pathInclude, root_c)){
+        INFO("Every Thing Up To Date :)");
+        return 0;
     }
+
+    if(fs::remove(pathInclude) == false){
+        INFO("Can't remove : " << pathInclude.lexically_normal().generic_string() );
+    }
+
 
     if (fs::exists(root_c))
     {
@@ -79,12 +57,12 @@ int main(int argc, char** argv){
             INFO("Folder Deleted : " << root_c);
         }
     }
-    //
+
     std::fstream include_file(pathInclude, std::ios::trunc | std::ios::in | std::ios::out);
     if(include_file.fail()){
         ERROR("Could'nt Open : " << FinalIncludeFile);
     }
-    //
+
     include_file <<
         "#pragma once\n"
         "\n"
@@ -101,13 +79,13 @@ int main(int argc, char** argv){
         "    const unsigned int size;\n"
         "};\n\n";
 
-    //
+
     if ( not fs::exists(root_c))
     {
         fs::create_directory(root_c);
         INFO("Folder Created Sucssucfuly : " << root_c);
     }
-    //
+
     for (auto &&e : fs::directory_iterator(root, fs::directory_options::skip_permission_denied)) {
         if (e.is_directory() && e.path() != root_c) {
             auto stemDir = e.path();
@@ -146,88 +124,55 @@ int main(int argc, char** argv){
         }
     }
 
-    //
     auto it = fs::recursive_directory_iterator(root, fs::directory_options::skip_permission_denied);
 
     for (auto &&e : it)
     {
 
-        if(e.path() == root_c ){
+        auto p = e.path();
+
+        if(p == root_c ){
             it.disable_recursion_pending();
             continue;
         }
         if(e.is_regular_file()){
-            if(e.path().parent_path() == root){
+            if(p.parent_path() == root){
                 continue;
             }
-            auto all_no_ext = e.path().parent_path() / e.path().stem();
+            auto all_no_ext = p.parent_path() / p.stem();
 
             auto dest_path = fs::path(root_c.lexically_normal() / all_no_ext.lexically_normal()).replace_extension(".h");
-
-            auto arr_name = all_no_ext.string();
-
-            // remove symbols
-            for (size_t i = 0; i < sizeof(UnwantedSym); i++)
-            {
-                std::replace(arr_name.begin(), arr_name.end(), UnwantedSym[i], '_');
-            }
-
-
-            auto p = e.path();
-            std::ifstream readFile(p, std::ios::binary);
-            
-            std::ofstream outFile(dest_path);
-
-            uintmax_t sizeF = fs::file_size(p);
-            std::string name = p.stem().string();
-
-            outFile << "constexpr unsigned char " << arr_name << "[] = { ";
-            char buff[5] = {'\0'};
-            for (uintmax_t i = 0; i < sizeF; i++)
-            {
-                char d;
-                readFile.get(d);
-                sprintf(buff, "0x%02X", (unsigned char)d);
-
-                if(i % 20 == 0){
-                    outFile << "\n\t";
-                }
-
-
-                outFile << buff;
-                if( i != sizeF - 1){
-                    outFile << ", ";
-                }
-            }
-            outFile << "};\n";
-
-            outFile << "constexpr unsigned int " << arr_name << "_len = " << sizeF << ";\n";
-            auto include = std::string("#include \"");
-
-            include += dest_path.lexically_normal().generic_string();
-            include += "\"";
-
-            include_file << include << "\n";
+            auto p_lexnormal = p.lexically_normal();
+            auto dest_path_lexnormal = dest_path.lexically_normal();
 
             std::string rtype;
 
-            if(e.path().extension() == ".png"){
+            if(p.extension() == ".png"){
                 rtype = "IMG";
-            }else if(e.path().extension() == ".wav"){
+            }else if(p.extension() == ".wav"){
                 rtype = "AUDIO";
             }else{
                 rtype = "None";
             }
 
             if(rtype == "None"){
-                INFO("Unkown Type : " << p.lexically_normal().generic_string());
+                INFO("Unkown Type : " << p_lexnormal.generic_string());
                 continue;
             }
 
-            ress.emplace_back(fs::relative(p.lexically_normal(), root).generic_string().c_str(), arr_name.c_str(), rtype);
-            INFO("Packing " << p.lexically_normal().generic_string() << " --> " << dest_path.lexically_normal().generic_string());
+            std::ofstream outFile(dest_path);
+            auto arr_name = File2Ccode(p, outFile);
 
-            
+            auto include = std::string("#include \"");
+
+            include += dest_path_lexnormal.generic_string();
+            include += "\"";
+
+            include_file << include << "\n";
+
+            ress.emplace_back(fs::relative(p_lexnormal, root).generic_string(), arr_name, rtype);
+            INFO("Packing " << p_lexnormal.generic_string() << " --> " << dest_path_lexnormal.generic_string());
+
         }
 
     }
@@ -244,4 +189,86 @@ int main(int argc, char** argv){
     include_file << "\nconstexpr unsigned int resources_count = sizeof(resources)/ sizeof(resources[0]);\n";
     
 
+}
+
+bool between(std::time_t number, std::time_t bound1, std::time_t bound2) {
+    return number >= std::min(bound1, bound2) && number <= std::max(bound1, bound2);
+}
+
+std::string replaceSymb(const fs::path& path){
+    constexpr char UnwantedSym[] = {
+        '\\', '/', '.' ,' ', '!', '!', '"', '@', '#', '$', '%', '&', '*', '(',')', '-', '=', '+', '`', ';', '~', '[', ']', '{', '}'
+    };
+    auto name = path.string();
+
+    for (size_t i = 0; i < sizeof(UnwantedSym); i++)
+    {
+        std::replace(name.begin(), name.end(), UnwantedSym[i], '_');
+    }
+
+    return name;
+}
+
+std::string File2Ccode(const fs::path& in, std::ofstream& outFile){
+
+    auto all_no_ext = in.parent_path() / in.stem();
+    auto arr_name = replaceSymb(all_no_ext);
+
+    std::ifstream readFile(in, std::ios::binary);
+    uintmax_t sizeF = fs::file_size(in);
+    std::string name = in.stem().string();
+
+    outFile << "constexpr unsigned char " << arr_name << "[] = { ";
+    char buff[5] = {'\0'};
+    for (uintmax_t i = 0; i < sizeF; i++)
+    {
+        char d;
+        readFile.get(d);
+        sprintf(buff, "0x%02X", (unsigned char)d);
+
+        if(i % 20 == 0){
+            outFile << "\n\t";
+        }
+
+        outFile << buff;
+        if( i != sizeF - 1){
+            outFile << ", ";
+        }
+    }
+    outFile << "};\n";
+    outFile << "\nconstexpr unsigned int " << arr_name << "_len = " << sizeF << ";\n";
+
+    return arr_name;
+}
+
+bool needUpdate(const fs::path& include, const fs::path& rootc) {
+    if(fs::exists(include) && fs::exists(rootc)){
+
+        auto latwrite_c = fs::last_write_time(rootc);
+        auto latwrite_inc = fs::last_write_time(include);
+
+        auto sctplatwrite_c = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+            latwrite_c - std::filesystem::file_time_type::clock::now()
+            + std::chrono::system_clock::now()
+        );
+
+        auto sctplatwrite_inc = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+            latwrite_inc - std::filesystem::file_time_type::clock::now()
+            + std::chrono::system_clock::now()
+        );
+
+        std::time_t latwrite_c_cftime = std::chrono::system_clock::to_time_t(sctplatwrite_c);
+        std::time_t latwrite_inc_cftime = std::chrono::system_clock::to_time_t(sctplatwrite_inc);
+
+        std::time_t eps = 10;
+        if( between(latwrite_c_cftime, latwrite_inc_cftime + eps, latwrite_inc_cftime - eps) 
+            || between(latwrite_inc_cftime, latwrite_c_cftime + eps, latwrite_c_cftime - eps)){
+            return false;
+        }else {
+            return true;
+        }
+
+    }else {
+        return true;
+    }
 }
