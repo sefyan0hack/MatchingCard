@@ -27,6 +27,8 @@ struct Resource {
 #include "c/img/cards/sakura_boruto.h"
 #include "c/img/cards/Sasuke_Uchiha.h"
 #include "c/img/ui/icon.h"
+#include "c/img/ui/menu_bar.h"
+#include "c/img/ui/menu_bar_optimized.h"
 #include "c/img/ui/refresh_icon.h"
 #include "c/img/ui/XX.h"
 
@@ -45,8 +47,10 @@ inline static Resource resources[] {
 	{11, IMG, "img/cards/sakura_boruto.png", __img_cards_sakura_boruto, __img_cards_sakura_boruto_len },
 	{12, IMG, "img/cards/Sasuke_Uchiha.png", __img_cards_Sasuke_Uchiha, __img_cards_Sasuke_Uchiha_len },
 	{13, IMG, "img/ui/icon.png", __img_ui_icon, __img_ui_icon_len },
-	{14, IMG, "img/ui/refresh_icon.png", __img_ui_refresh_icon, __img_ui_refresh_icon_len },
-	{15, IMG, "img/ui/XX.png", __img_ui_XX, __img_ui_XX_len },
+	{14, IMG, "img/ui/menu_bar.png", __img_ui_menu_bar, __img_ui_menu_bar_len },
+	{15, IMG, "img/ui/menu_bar_optimized.png", __img_ui_menu_bar_optimized, __img_ui_menu_bar_optimized_len },
+	{16, IMG, "img/ui/refresh_icon.png", __img_ui_refresh_icon, __img_ui_refresh_icon_len },
+	{17, IMG, "img/ui/XX.png", __img_ui_XX, __img_ui_XX_len },
 };
 
 constexpr unsigned int resources_count = sizeof(resources)/ sizeof(resources[0]);

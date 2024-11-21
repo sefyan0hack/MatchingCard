@@ -8,6 +8,7 @@
 struct TexInfo {
     Texture2D t;
     const char* name;
+    int width, height;
 };
 
 inline static std::vector<TexInfo> ui;
@@ -43,10 +44,10 @@ std::vector<TexInfo> GetTexturesfromfolder(const char* foldername, int width=-1,
         if( r.type == IMG){
             if(contains(r.path, path_postfix.c_str())){
                 if(width != -1 && height != -1){
-                    result.push_back({LoadTextureFromMemWithSize(r, width, height), strdup(r.path)});
+                    result.push_back({LoadTextureFromMemWithSize(r, width, height), strdup(r.path), width, height});
                 }else{
                     Image img = LoadImageFromMemory(".png", r.data, r.size);
-                    result.push_back({LoadTextureFromImage(img), strdup(r.path)});
+                    result.push_back({LoadTextureFromImage(img), strdup(r.path), img.width, img.height});
                     UnloadImage(img);
                 }
             }
@@ -59,7 +60,21 @@ std::vector<TexInfo> GetTexturesfromfolder(const char* foldername, int width=-1,
     }
     return result;
 }
-
+size_t GetTextureCountFromFolder(const char* foldername){
+    std::string path_postfix(foldername);
+    path_postfix += "/";
+    size_t count = 0;
+    for (unsigned int i = 0; i < resources_count; i++)
+    {
+        auto r = resources[i];
+        if( r.type == IMG){
+            if(contains(r.path, path_postfix.c_str())){
+                count++;
+            }
+        }
+    }
+    return count;
+}
 
 void Init_Resources(){
     ui = GetTexturesfromfolder("ui");
@@ -69,6 +84,30 @@ const Texture2D& GetUiTex(const char* name){
     {
         if(contains(t.name, name)){
             return t.t;
+        }
+    }
+    
+    printf("this is unreachable in GetUiTex");
+    exit(1);
+}
+
+int GetUiTexWidth(const char* name){
+    for (const auto& t : ui)
+    {
+        if(contains(t.name, name)){
+            return t.width;
+        }
+    }
+    
+    printf("this is unreachable in GetUiTex");
+    exit(1);
+}
+
+int GetUiTexHeight(const char* name){
+    for (const auto& t : ui)
+    {
+        if(contains(t.name, name)){
+            return t.height;
         }
     }
     

@@ -11,6 +11,7 @@
 
 #define FPS 30
 #define padding 5
+#define TOP_HEIGHT screenHeight * 0.09f
 
 struct Card
 {
@@ -26,10 +27,10 @@ int main(){
     std::random_device rd;
     std::default_random_engine rng(rd());
 
-    int screenWidth = 640;
-    int screenHeight = 720;
+    int screenWidth = 800;
+    int screenHeight = 600;
 
-    SetConfigFlags(FLAG_MSAA_4X_HINT);
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE);
 
     InitWindow(screenWidth, screenHeight, "Game");
     SetWindowPosition(GetMonitorWidth(GetCurrentMonitor())/2 - screenWidth/2, 26);
@@ -42,24 +43,31 @@ int main(){
     int textWidth = MeasureText(GameName, TitleFontSize);
     int textX = (screenWidth - textWidth) / 2;
 
+    auto sqt_cards = std::sqrt(GetTextureCountFromFolder("cards")*2);
+    size_t dimx = sqt_cards;
+    size_t dimy = sqt_cards;
+    while (dimx * dimy < GetTextureCountFromFolder("cards")*2)
+    {
+        dimx++;
+    }
 
-    
-    size_t dim = 5;
-    size_t gab = 1;
+    std::cout << dimx << "|" << dimy;
 
-    int rectx = 0 + padding;
-    int recty = 0 + 100 + padding;
+    float gab = 3.0f;
 
-    int rectWith = screenWidth - (2*padding);
-    int rectHeight = screenHeight - (2*padding) - 100;
-    int width_gab = rectWith - gab * dim;
-    int height_gab = rectHeight - gab * dim;
+    float rectx = screenWidth * 0.05f;
+    float recty = TOP_HEIGHT + padding;
 
-    auto texs_width =  width_gab/5.0f;
-    auto texs_height =  height_gab/5.0f;
+    float rectWidth = screenWidth - 2*rectx;
+    float rectHeight = screenHeight - (2*padding) - TOP_HEIGHT;
+    float width_gab = rectWidth - gab * dimx;
+    float height_gab = rectHeight - gab * dimy;
+
+    auto texs_width =  width_gab/float(dimx);
+    auto texs_height =  height_gab/float(dimy);
 
     std::vector<TexInfo> texs = GetTexturesfromfolder("cards", texs_width, texs_height);
-    
+
     std::vector<Card> map;
     
     for (size_t i = 0; i < texs.size(); i++)
@@ -91,51 +99,55 @@ int main(){
         {
             screenWidth = GetScreenWidth();
             screenHeight = GetScreenHeight();
+
+            rectx = screenWidth * 0.05f;
+            recty = TOP_HEIGHT + padding;
+
+            rectWidth = screenWidth - 2*rectx;
+            rectHeight = screenHeight - (2*padding) - TOP_HEIGHT;
+
+
+            width_gab = rectWidth - gab * dimx;
+            height_gab = rectHeight - gab * dimy;
+
+
+            textX = (screenWidth - textWidth) / 2;
         }
-
-        rectWith = screenWidth - (2*padding);
-        rectHeight = screenHeight - (2*padding) - 100;
-
-        rectx = screenWidth * 0.02f + padding;
-        recty = screenHeight * 0.15f + padding;
-
-        width_gab = rectWith - gab * dim - rectx;
-        height_gab = rectHeight - gab * dim;
-
-
-        textX = (screenWidth - textWidth) / 2;
 
         BeginDrawing();
 
-            ClearBackground({128,128,128, 255});
-            DrawRectangleRec(CLITERAL(Rectangle) {0,0, (float)screenWidth, 100.0f }, {112, 128, 144, 255});
-
+            ClearBackground({117, 117, 117, 255});
+            DrawRectangleRec({0,0, (float)screenWidth, TOP_HEIGHT }, {176, 190, 197, 255});
             Rectangle curr;
             
-            Vector2 refAssetsize = {64.0f, 64.0f};
-            Rectangle refechBRec = { (screenWidth - refAssetsize.x)/2.0f, screenHeight -  (screenHeight - height_gab)/2.0f - refAssetsize.y/2.0f , (float)refAssetsize.x, (float)refAssetsize.y};
+            Vector2 menubarSize = {GetUiTexWidth("menu_bar_optimized.png"), GetUiTexHeight("menu_bar_optimized.png")};
+            Rectangle menubarRec = {  screenWidth - padding - menubarSize.x, (TOP_HEIGHT -menubarSize.y)/2.0f, menubarSize.x, menubarSize.y};
             
-            if(CheckCollisionPointRec(GetMousePosition(), refechBRec)){
-                DrawTextureEx(GetUiTex("refresh_icon.png"), {refechBRec.x, refechBRec.y}, 0.0f, 0.132f, Fade(BLACK, 0.9f));
+            if(CheckCollisionPointRec(GetMousePosition(), menubarRec)){
+                DrawTexture(GetUiTex("menu_bar_optimized.png"),menubarRec.x, menubarRec.y, Fade(BLACK, 0.9f));
             } else{
-                DrawTextureEx(GetUiTex("refresh_icon.png"), {refechBRec.x, refechBRec.y}, 0.0f, 0.13f, BLACK);
+                DrawTexture(GetUiTex("menu_bar_optimized.png"), menubarRec.x, menubarRec.y, BLACK);
             }
 
-            for (size_t i = 0; i < dim; i++)
+            float tail_width = width_gab / dimx;
+            float tail_height = height_gab / dimy;
+            size_t CardCount = 0;
+            for (size_t i = 0; i < dimx; i++)
             {
-                for (size_t j = 0; j < dim - 1 ; j++)
+                for (size_t j = 0; j < dimy ; j++)
                 {
-                    int x = rectx + i * (width_gab /5 + gab);
-                    int y = recty + j * (height_gab /5 + gab);
                     
-                    auto& card = map[i * (dim-1) + j];
+                    float x = rectx + i * (tail_width + gab);
+                    float y = recty + j * (tail_height + gab);
+                    
+                    auto& card = map[CardCount++];
 
-                    curr = {(float)x, (float)y, (float)width_gab/5, (float)height_gab/5 };
+                    curr = {x, y, tail_width, tail_height };
 
                     if(CheckCollisionPointRec(GetMousePosition(), curr)){
-                        DrawRectangleRounded(curr, 0.1f, 60, {122, 211, 255, 255});
+                        DrawRectangleRounded(curr, 0.1f, 40, {247, 249, 237, 255});
                     } else{
-                        DrawRectangleRounded(curr, 0.1f, 60, { 102, 191, 255, 255});
+                        DrawRectangleRounded(curr, 0.1f, 40, {247, 249, 237, 255});
                     }
 
                     auto mousePos = GetMousePosition();
@@ -148,21 +160,21 @@ int main(){
                         if(CheckCollisionPointRec(mousePos, curr)){
                             if ( not card.active && showWrong == false)
                             {
-                                GoodMatsh.push_back( std::make_tuple( card.id, Vector2 {(float)x, (float)y}, &card.active ) );
+                                GoodMatsh.push_back( std::make_tuple( card.id, Vector2 {x, y}, &card.active ) );
                             }
                         }
 
                         //check if i pressed on the Replay Button to Replay 
-                        if(CheckCollisionPointRec(mousePos, refechBRec)){
-                            //suffle 2 times :)
-                            std::shuffle(map.begin(), map.end(), rng);
-                            std::shuffle(map.begin(), map.end(), rng);
-                            for (auto &c : map)
-                            {
-                                c.active = false;
-                            }
-                            GoodMatsh.clear();
-                        }
+                        // if(CheckCollisionPointRec(mousePos, menubarRec)){
+                        //     //suffle 2 times :)
+                        //     std::shuffle(map.begin(), map.end(), rng);
+                        //     std::shuffle(map.begin(), map.end(), rng);
+                        //     for (auto &c : map)
+                        //     {
+                        //         c.active = false;
+                        //     }
+                        //     GoodMatsh.clear();
+                        // }
                     }
                 }
             }
@@ -170,7 +182,7 @@ int main(){
             for (const auto &mcard : GoodMatsh)
             {
                 const auto& [id, pos, _] = mcard;
-                DrawTexturePro(texs[id].t, {0.0f, 0.0f, texs_width, texs_height}, {pos.x, pos.y, width_gab/5.0f, height_gab/5.0f}, {0.0f, 0.0f}, 0.0f, WHITE);
+                DrawTexturePro(texs[id].t, {0.0f, 0.0f, texs_width, texs_height}, {pos.x, pos.y, tail_width, tail_height}, {0.0f, 0.0f}, 0.0f, WHITE);
                 // DrawTexture(texs[id].t, pos.x, pos.y, WHITE);
             }
 
@@ -209,14 +221,14 @@ int main(){
             // Draw the wrong texture
             if (showWrong) {
                 auto tx = GetUiTex("XX.png");
-                float scale = 0.4f;
-                DrawTextureEx(tx, {GetScreenWidth()/2.0f - tx.width/2.0f*scale, GetScreenHeight()/2.0f - tx.height/2.0f*scale}, 0.0f, scale, Fade(WHITE, 0.8f));
+                float scale = 0.4f * screenWidth/screenHeight;
+                DrawTextureEx(tx, {screenWidth/2.0f - tx.width/2.0f*scale, screenHeight/2.0f - tx.height/2.0f*scale}, 0.0f, scale, Fade(WHITE, 0.8f));
             }
 
-            DrawText("Matching Card!", textX, padding, TitleFontSize, GOLD);
+            DrawText("Matching Card!", textX, padding, TitleFontSize, DARKBLUE);
 
             inf += std::to_string(GoodMatsh.size());
-            DrawText(inf.c_str(), padding, padding, TitleFontSize, GOLD);
+            DrawText(inf.c_str(), padding, padding, TitleFontSize, DARKBLUE);
             inf.clear();
 
             if(GoodMatsh.size() == map.size()){
