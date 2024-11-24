@@ -4,10 +4,12 @@
 #include <filesystem>
 #include <fstream>
 #include <algorithm>
+#include <system_error>
 
 namespace fs = std::filesystem;
 
 #define INFO(...) std::cout << "[!] INFO : " << __VA_ARGS__ << std::endl
+#define WHY std::cout << "[!] ERROR CODE (" << ER_code.value() << ") : "<< ER_code.message() << std::endl
 #define ERROR(...) std::cerr << "[x] ERROR : " << __VA_ARGS__ << std::endl; exit(1)
 
 struct ResInfo
@@ -21,8 +23,14 @@ bool between(std::time_t number, std::time_t bound1, std::time_t bound2);
 std::string replaceSymb(const fs::path& path);
 std::string File2Ccode(const fs::path& in, std::ofstream& outFile);
 bool needUpdate(const fs::path& include, const fs::path& rootc);
+bool deleteFolder(const fs::path& foldername);
+
+std::error_code  ER_code{};
 
 std::vector<ResInfo> ress;
+unsigned int Uknown_count = 0;
+unsigned int Img_count = 0;
+unsigned int Sound_count = 0;
 
 constexpr const char* FinalIncludeFile = "all_res.hpp";
 
@@ -42,20 +50,15 @@ int main(int argc, char** argv){
         return 0;
     }
 
-    if(fs::remove(pathInclude) == false){
-        INFO("Can't remove : " << pathInclude.lexically_normal().generic_string() );
+    if(fs::remove(pathInclude, ER_code) == false){
+        INFO("Can't remove : " << pathInclude.lexically_normal().generic_string());
     }
+    if(ER_code) WHY;
 
 
-    if (fs::exists(root_c))
+    if ( not deleteFolder(root_c))
     {
-        INFO("Folder Exist : " << root_c);
-
-        if(fs::remove_all(root_c) == 0 || fs::remove_all(root_c) == static_cast<std::uintmax_t>(-1)){
-            ERROR("Could'nt remove " << root_c);
-        }else{
-            INFO("Folder Deleted : " << root_c);
-        }
+        INFO("Could'nt remove " << root_c);
     }
 
     std::fstream include_file(pathInclude, std::ios::trunc | std::ios::in | std::ios::out);
@@ -80,17 +83,26 @@ int main(int argc, char** argv){
         "};\n\n";
 
 
-    if ( not fs::exists(root_c))
+    if ( not fs::exists(root_c, ER_code))
     {
-        fs::create_directory(root_c);
+        fs::create_directory(root_c, ER_code);
+        if(ER_code) WHY;
         INFO("Folder Created Sucssucfuly : " << root_c);
     }
+    if(ER_code) WHY;
 
-    for (auto &&e : fs::directory_iterator(root, fs::directory_options::skip_permission_denied)) {
-        if (e.is_directory() && e.path() != root_c) {
+    auto it1 = fs::directory_iterator(root, fs::directory_options::skip_permission_denied, ER_code);
+    if(ER_code) WHY;
+
+    for (auto &&e : it1) {
+        auto isNotC = e.is_directory(ER_code) && e.path() != root_c;
+        if(ER_code) WHY;
+
+        if (isNotC) {
             auto stemDir = e.path();
 
-            std::filesystem::path relativePath = fs::relative(stemDir, root);
+            std::filesystem::path relativePath = fs::relative(stemDir, root,ER_code);
+            if(ER_code) WHY;
 
             if (relativePath == stemDir) {
                 relativePath = fs::path(e.path().filename().string());
@@ -99,22 +111,27 @@ int main(int argc, char** argv){
             std::filesystem::path newDirPath = "c" / relativePath;
 
             try {
-                if (fs::create_directories(newDirPath)) {
-                    // INFO("Created dir " << newDirPath.string());
-                }
+                fs::create_directories(newDirPath, ER_code);
+                if(ER_code) WHY;
+
             } catch (const std::exception& ex) {
                 ERROR(ex.what());
                 continue;
             }
 
-            for (auto &&ee : fs::recursive_directory_iterator(stemDir, fs::directory_options::skip_permission_denied)) {
-                if (ee.is_directory()) {
-                    std::filesystem::path newSubDirPath = "c" / fs::relative(ee.path(), root);
+            auto nestedIt = fs::recursive_directory_iterator(stemDir, fs::directory_options::skip_permission_denied,ER_code);
+            if(ER_code) WHY;
+            
+            for (auto &&ee : nestedIt ) {
 
+                auto isdir = ee.is_directory(ER_code);
+                if(ER_code) WHY;
+
+                if (isdir) {
+                    std::filesystem::path newSubDirPath = "c" / fs::relative(ee.path(), root);
                     try {
-                        if (fs::create_directories(newSubDirPath)) {
-                            // INFO("Created dir " << newSubDirPath.string());
-                        }
+                        fs::create_directories(newSubDirPath);
+                        if(ER_code) WHY;
                     } catch (const std::exception& ex) {
                         ERROR(ex.what());
                         continue;
@@ -124,7 +141,7 @@ int main(int argc, char** argv){
         }
     }
 
-    auto it = fs::recursive_directory_iterator(root, fs::directory_options::skip_permission_denied);
+    auto it = fs::recursive_directory_iterator(root, fs::directory_options::skip_permission_denied, ER_code);
 
     for (auto &&e : it)
     {
@@ -135,7 +152,10 @@ int main(int argc, char** argv){
             it.disable_recursion_pending();
             continue;
         }
-        if(e.is_regular_file()){
+        auto isNormalFile = e.is_regular_file(ER_code);
+        if(ER_code) WHY;
+
+        if(isNormalFile){
             if(p.parent_path() == root){
                 continue;
             }
@@ -149,10 +169,13 @@ int main(int argc, char** argv){
 
             if(p.extension() == ".png"){
                 rtype = "IMG";
+                Img_count++;
             }else if(p.extension() == ".wav"){
                 rtype = "AUDIO";
+                Sound_count++;
             }else{
                 rtype = "None";
+                Uknown_count++;
             }
 
             if(rtype == "None"){
@@ -176,6 +199,15 @@ int main(int argc, char** argv){
         }
 
     }
+    //NOTe  : img & sound for now add  more
+    if(Img_count == 0 && Sound_count == 0 ) {
+        include_file
+            << "\ninline static Resource resources[0];\n"
+            << "\nconstexpr unsigned int resources_count = 0;\n";
+
+        deleteFolder(root_c);
+        return 0;
+    }
 
     int id = 0;
     
@@ -185,9 +217,9 @@ int main(int argc, char** argv){
         auto [path, name, type] = e;
         include_file << "\t{"<< id++ << ", " << type << ", \"" << path << "\", " << name << ", " << name << "_len },\n";
     }
-    include_file << "};\n";
-    include_file << "\nconstexpr unsigned int resources_count = sizeof(resources)/ sizeof(resources[0]);\n";
-    
+    include_file 
+        << "};\n"
+        << "\nconstexpr unsigned int resources_count = sizeof(resources)/ sizeof(resources[0]);\n";
 
 }
 
@@ -242,7 +274,9 @@ std::string File2Ccode(const fs::path& in, std::ofstream& outFile){
 }
 
 bool needUpdate(const fs::path& include, const fs::path& rootc) {
-    if(fs::exists(include) && fs::exists(rootc)){
+    auto fileAndCexist = fs::exists(include) && fs::exists(rootc);
+    if(ER_code) WHY;
+    if(fileAndCexist){
 
         auto latwrite_c = fs::last_write_time(rootc);
         auto latwrite_inc = fs::last_write_time(include);
@@ -270,5 +304,23 @@ bool needUpdate(const fs::path& include, const fs::path& rootc) {
 
     }else {
         return true;
+    }
+}
+
+bool deleteFolder(const fs::path& foldername){
+    auto folderExist = fs::exists(foldername, ER_code);
+    if(ER_code) WHY;
+    
+    if (folderExist)
+    {
+        auto Remov = fs::remove_all(foldername);
+        if(Remov == 0 || Remov == static_cast<std::uintmax_t>(-1)){
+            if(ER_code) WHY;
+            return false;
+        }else{
+            return true;
+        }
+    }else{
+        return false;
     }
 }
