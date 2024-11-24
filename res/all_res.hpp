@@ -54,3 +54,6 @@ inline static Resource resources[] {
 };
 
 constexpr unsigned int resources_count = sizeof(resources)/ sizeof(resources[0]);
+
+#define IMGCOUNT 15
+#define SOUNDCOUNT 3

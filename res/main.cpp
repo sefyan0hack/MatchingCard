@@ -24,7 +24,8 @@ std::string replaceSymb(const fs::path& path);
 std::string File2Ccode(const fs::path& in, std::ofstream& outFile);
 bool needUpdate(const fs::path& include, const fs::path& rootc);
 bool deleteFolder(const fs::path& foldername);
-
+bool sameLastWrite(const fs::path& lhs, const fs::path& rhs);
+size_t FileCountFolder(const fs::path& foldername);
 std::error_code  ER_code{};
 
 std::vector<ResInfo> ress;
@@ -45,7 +46,7 @@ int main(int argc, char** argv){
     auto pathInclude = root / fs::path(FinalIncludeFile);
     
 
-    if( not needUpdate(pathInclude, root_c)){
+    if( not needUpdate(pathInclude, root)){
         INFO("Every Thing Up To Date :)");
         return 0;
     }
@@ -101,7 +102,7 @@ int main(int argc, char** argv){
         if (isNotC) {
             auto stemDir = e.path();
 
-            std::filesystem::path relativePath = fs::relative(stemDir, root,ER_code);
+            std::filesystem::path relativePath = fs::relative(stemDir, root, ER_code);
             if(ER_code) WHY;
 
             if (relativePath == stemDir) {
@@ -202,8 +203,9 @@ int main(int argc, char** argv){
     //NOTe  : img & sound for now add  more
     if(Img_count == 0 && Sound_count == 0 ) {
         include_file
-            << "\ninline static Resource resources[0];\n"
-            << "\nconstexpr unsigned int resources_count = 0;\n";
+            << "\ninline static Resource *resources = nullptr;\n"
+            << "\n#define " << "IMGCOUNT " << Img_count
+            << "\n#define " << "SOUNDCOUNT " << Sound_count;
 
         deleteFolder(root_c);
         return 0;
@@ -219,7 +221,9 @@ int main(int argc, char** argv){
     }
     include_file 
         << "};\n"
-        << "\nconstexpr unsigned int resources_count = sizeof(resources)/ sizeof(resources[0]);\n";
+        << "\nconstexpr unsigned int resources_count = sizeof(resources)/ sizeof(resources[0]);\n"
+        << "\n#define " << "IMGCOUNT " << Img_count
+        << "\n#define " << "SOUNDCOUNT " << Sound_count;
 
 }
 
@@ -273,38 +277,98 @@ std::string File2Ccode(const fs::path& in, std::ofstream& outFile){
     return arr_name;
 }
 
-bool needUpdate(const fs::path& include, const fs::path& rootc) {
-    auto fileAndCexist = fs::exists(include) && fs::exists(rootc);
+size_t FileCountFolder(const fs::path& foldername){
+    auto it = fs::directory_iterator(foldername, fs::directory_options::skip_permission_denied, ER_code);
     if(ER_code) WHY;
-    if(fileAndCexist){
 
-        auto latwrite_c = fs::last_write_time(rootc);
-        auto latwrite_inc = fs::last_write_time(include);
+    size_t count = 0;
+    for (auto &&f : it)
+    {
+        auto isFile = f.is_regular_file(ER_code);
+        if(ER_code) WHY;
 
-        auto sctplatwrite_c = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
-            latwrite_c - std::filesystem::file_time_type::clock::now()
+        if(isFile){
+            count++;
+        }
+    }
+
+    return count;
+}
+
+bool sameLastWrite(const fs::path& lhs, const fs::path& rhs){
+    auto bothexist = fs::exists(lhs) && fs::exists(lhs);
+    if(ER_code) WHY;
+
+    if(bothexist){
+
+        auto latwrite_l = fs::last_write_time(lhs);
+        auto latwrite_r = fs::last_write_time(rhs);
+
+        auto sctplatwrite_l = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+            latwrite_l - std::filesystem::file_time_type::clock::now()
             + std::chrono::system_clock::now()
         );
 
-        auto sctplatwrite_inc = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
-            latwrite_inc - std::filesystem::file_time_type::clock::now()
+        auto sctplatwrite_r = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+            latwrite_r - std::filesystem::file_time_type::clock::now()
             + std::chrono::system_clock::now()
         );
 
-        std::time_t latwrite_c_cftime = std::chrono::system_clock::to_time_t(sctplatwrite_c);
-        std::time_t latwrite_inc_cftime = std::chrono::system_clock::to_time_t(sctplatwrite_inc);
+        std::time_t latwrite_l_cftime = std::chrono::system_clock::to_time_t(sctplatwrite_l);
+        std::time_t latwrite_r_cftime = std::chrono::system_clock::to_time_t(sctplatwrite_r);
 
         std::time_t eps = 10;
-        if( between(latwrite_c_cftime, latwrite_inc_cftime + eps, latwrite_inc_cftime - eps) 
-            || between(latwrite_inc_cftime, latwrite_c_cftime + eps, latwrite_c_cftime - eps)){
-            return false;
-        }else {
+        if( between(latwrite_l_cftime, latwrite_r_cftime + eps, latwrite_r_cftime - eps) 
+            || between(latwrite_r_cftime, latwrite_l_cftime + eps, latwrite_l_cftime - eps)){
             return true;
         }
-
-    }else {
-        return true;
     }
+
+    return false;
+}
+bool needUpdate(const fs::path& include, const fs::path& root) {
+    auto it = fs::recursive_directory_iterator(root, fs::directory_options::skip_permission_denied, ER_code);
+    if(ER_code) WHY;
+    auto root_c = root / "c";
+
+    for (auto &&e : it)
+    {
+        auto stemDir = e.path();
+
+        if(stemDir == root_c){
+            it.disable_recursion_pending();
+            continue;
+        }
+
+        auto isDir = fs::is_directory(stemDir, ER_code);
+        if(ER_code) WHY;
+
+        if(isDir){
+            auto stemDirCan = fs::weakly_canonical(stemDir, ER_code);
+            if(ER_code) WHY;
+      
+            fs::path relativePath = fs::relative(stemDirCan, root, ER_code);
+            if(ER_code) WHY;
+
+            fs::path newDirPath = root_c / relativePath;
+
+            if(FileCountFolder(stemDir) != FileCountFolder(newDirPath)){
+                return true;
+            }
+        }
+    }
+
+    auto it2 = fs::recursive_directory_iterator(root_c, fs::directory_options::skip_permission_denied, ER_code);
+    if(ER_code) WHY;
+
+    for (auto &&e : it2)
+    {
+        if(not sameLastWrite(include, e.path())){
+            return true;
+        }
+    }
+    
+    return false;
 }
 
 bool deleteFolder(const fs::path& foldername){
