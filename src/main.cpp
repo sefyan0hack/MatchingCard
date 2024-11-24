@@ -120,7 +120,7 @@ int main(){
             DrawRectangleRec({0,0, (float)screenWidth, TOP_HEIGHT }, {176, 190, 197, 255});
             Rectangle curr;
             
-            Vector2 menubarSize = {GetUiTexWidth("menu_bar_optimized.png"), GetUiTexHeight("menu_bar_optimized.png")};
+            Vector2 menubarSize = {(float)GetUiTexWidth("menu_bar_optimized.png"), (float)GetUiTexHeight("menu_bar_optimized.png")};
             Rectangle menubarRec = {  screenWidth - padding - menubarSize.x, (TOP_HEIGHT -menubarSize.y)/2.0f, menubarSize.x, menubarSize.y};
             
             if(CheckCollisionPointRec(GetMousePosition(), menubarRec)){
