@@ -26,6 +26,8 @@ bool needUpdate(const fs::path& include, const fs::path& rootc);
 bool deleteFolder(const fs::path& foldername);
 bool sameLastWrite(const fs::path& lhs, const fs::path& rhs);
 size_t FileCountFolder(const fs::path& foldername);
+const char* to_hex_string(unsigned char d);
+
 std::error_code  ER_code{};
 
 std::vector<ResInfo> ress;
@@ -253,26 +255,34 @@ std::string File2Ccode(const fs::path& in, std::ofstream& outFile){
     std::ifstream readFile(in, std::ios::binary);
     uintmax_t sizeF = fs::file_size(in);
     std::string name = in.stem().string();
+    std::string DataBuff;
 
-    outFile << "constexpr unsigned char " << arr_name << "[] = { ";
-    char buff[5] = {'\0'};
+    DataBuff += "constexpr unsigned char ";
+    DataBuff += arr_name;
+    DataBuff += "[] = { ";
+
     for (uintmax_t i = 0; i < sizeF; i++)
     {
         char d;
         readFile.get(d);
-        sprintf(buff, "0x%02X", (unsigned char)d);
 
         if(i % 20 == 0){
-            outFile << "\n\t";
+            DataBuff += "\n\t";
         }
 
-        outFile << buff;
+        DataBuff += to_hex_string(static_cast<unsigned char>(d));
         if( i != sizeF - 1){
-            outFile << ", ";
+            DataBuff += ", ";
         }
     }
-    outFile << "};\n";
-    outFile << "\nconstexpr unsigned int " << arr_name << "_len = " << sizeF << ";\n";
+    DataBuff += "};\n";
+    DataBuff += "\nconstexpr unsigned int ";
+    DataBuff += arr_name;
+    DataBuff += "_len = ";
+    DataBuff += std::to_string(sizeF);
+    DataBuff += ";\n";
+
+    outFile << DataBuff;
 
     return arr_name;
 }
@@ -387,4 +397,16 @@ bool deleteFolder(const fs::path& foldername){
     }else{
         return false;
     }
+}
+const char* to_hex_string(unsigned char d) {
+    static const char* hex_digits = "0123456789ABCDEF";
+    static char *result = new char[5];
+
+    result[0] = '0';
+    result[1] = 'x';
+    result[2] = hex_digits[(d >> 4) & 0xF];
+    result[3] = hex_digits[d & 0xF];
+    result[4] = '\0';
+
+    return result;
 }
