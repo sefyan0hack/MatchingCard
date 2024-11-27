@@ -12,6 +12,13 @@
 #define FPS 30
 #define padding 5
 #define TOP_HEIGHT screenHeight * 0.09f
+#define PADDING_LR screenWidth * 0.08f
+
+#define BG_COLOR        { 167, 199, 231, 255}
+#define CARD_COLOR      { 255, 250, 227, 255}
+#define HEADER_COLOR    { 58, 91, 160, 255}
+#define TEXT_COLOR      { 255, 255, 255, 255}
+#define MENU_COLOR      { 58, 91, 160, 255}
 
 struct Card
 {
@@ -55,7 +62,7 @@ int main(){
 
     float gab = 3.0f;
 
-    float rectx = screenWidth * 0.05f;
+    float rectx = PADDING_LR;
     float recty = TOP_HEIGHT + padding;
 
     float rectWidth = screenWidth - 2*rectx;
@@ -100,7 +107,7 @@ int main(){
             screenWidth = GetScreenWidth();
             screenHeight = GetScreenHeight();
 
-            rectx = screenWidth * 0.05f;
+            rectx = PADDING_LR;
             recty = TOP_HEIGHT + padding;
 
             rectWidth = screenWidth - 2*rectx;
@@ -116,8 +123,8 @@ int main(){
 
         BeginDrawing();
 
-            ClearBackground({117, 117, 117, 255});
-            DrawRectangleRec({0,0, (float)screenWidth, TOP_HEIGHT }, {176, 190, 197, 255});
+            ClearBackground(BG_COLOR);
+            DrawRectangleRec({0,0, (float)screenWidth, TOP_HEIGHT }, HEADER_COLOR);
             Rectangle curr;
             
             Vector2 menubarSize = {(float)GetUiTexWidth("menu_bar_optimized.png"), (float)GetUiTexHeight("menu_bar_optimized.png")};
@@ -126,7 +133,7 @@ int main(){
             if(CheckCollisionPointRec(GetMousePosition(), menubarRec)){
                 DrawTexture(GetUiTex("menu_bar_optimized.png"),menubarRec.x, menubarRec.y, Fade(BLACK, 0.9f));
             } else{
-                DrawTexture(GetUiTex("menu_bar_optimized.png"), menubarRec.x, menubarRec.y, BLACK);
+                DrawTexture(GetUiTex("menu_bar_optimized.png"), menubarRec.x, menubarRec.y, MENU_COLOR);
             }
 
             float tail_width = width_gab / dimx;
@@ -145,9 +152,9 @@ int main(){
                     curr = {x, y, tail_width, tail_height };
 
                     if(CheckCollisionPointRec(GetMousePosition(), curr)){
-                        DrawRectangleRounded(curr, 0.1f, 40, {247, 249, 237, 255});
+                        DrawRectangleRounded(curr, 0.1f, 40, CARD_COLOR);
                     } else{
-                        DrawRectangleRounded(curr, 0.1f, 40, {247, 249, 237, 255});
+                        DrawRectangleRounded(curr, 0.1f, 40, CARD_COLOR);
                     }
 
                     auto mousePos = GetMousePosition();
@@ -225,10 +232,10 @@ int main(){
                 DrawTextureEx(tx, {screenWidth/2.0f - tx.width/2.0f*scale, screenHeight/2.0f - tx.height/2.0f*scale}, 0.0f, scale, Fade(WHITE, 0.8f));
             }
 
-            DrawText("Matching Card!", textX, padding, TitleFontSize, DARKBLUE);
+            DrawText("Matching Card!", textX, padding, TitleFontSize, TEXT_COLOR);
 
             inf += std::to_string(GoodMatsh.size());
-            DrawText(inf.c_str(), padding, padding, TitleFontSize, DARKBLUE);
+            DrawText(inf.c_str(), padding, padding, TitleFontSize, TEXT_COLOR);
             inf.clear();
 
             if(GoodMatsh.size() == map.size()){
