@@ -6,7 +6,8 @@
 # Visual Studio Code settings
 .vscode/
 *.code-workspace
-
+.cache/*
+compile_commands.json
 # CMake generated files
 CMakeCache.txt
 CMakeFiles/
