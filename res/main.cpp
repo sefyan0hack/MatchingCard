@@ -83,7 +83,13 @@ int main(int argc, char** argv){
         "    const char* path;\n"
         "    const unsigned char* data;\n"
         "    const unsigned int size;\n"
-        "};\n\n";
+        "};\n\n"
+        "#if __cplusplus < 201103L\n"
+        "#define constexpr  \n"
+        "#endif\n\n"
+        "#if __cplusplus < 201703L\n"
+        "#define inline  \n"
+        "#endif\n\n";
 
 
     if ( not fs::exists(root_c, ER_code))
@@ -225,8 +231,9 @@ int main(int argc, char** argv){
         << "};\n"
         << "\nconstexpr unsigned int resources_count = sizeof(resources)/ sizeof(resources[0]);\n"
         << "\n#define " << "IMGCOUNT " << Img_count
-        << "\n#define " << "SOUNDCOUNT " << Sound_count;
-
+        << "\n#define " << "SOUNDCOUNT " << Sound_count
+        << "\n#undef constexpr"
+        << "\n#undef inline";
 }
 
 bool between(std::time_t number, std::time_t bound1, std::time_t bound2) {

@@ -13,6 +13,14 @@ struct Resource {
     const unsigned int size;
 };
 
+#if __cplusplus < 201103L
+#define constexpr  
+#endif
+
+#if __cplusplus < 201703L
+#define inline  
+#endif
+
 #include "c/audio/click.h"
 #include "c/audio/good.h"
 #include "c/audio/wrong.h"
@@ -57,3 +65,5 @@ constexpr unsigned int resources_count = sizeof(resources)/ sizeof(resources[0])
 
 #define IMGCOUNT 15
 #define SOUNDCOUNT 3
+#undef constexpr
+#undef inline
