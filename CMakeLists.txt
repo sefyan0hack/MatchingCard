@@ -7,6 +7,25 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+#add CPM as pack man
+if(NOT EXISTS "${CMAKE_SOURCE_DIR}/cmake/CPM.cmake")
+file(
+    DOWNLOAD
+    https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.40.3/CPM.cmake
+    ${CMAKE_SOURCE_DIR}/cmake/CPM.cmake
+    EXPECTED_HASH SHA256=2e89a807e906eab270c68c531129dc6b7f989c79a38a4cca7dde0f3ec93d9c68
+)
+endif()
+
+# Include CPM
+if(NOT CPM_SOURCE_CACHE)
+    set(CPM_SOURCE_CACHE "${CMAKE_SOURCE_DIR}/.cache/CPM" CACHE STRING "CPM source cache")
+endif()
+
+include(cmake/CPM.cmake)
+
+CPMAddPackage("gh:raysan5/raylib#5.5")
+
 # Define warning flags
 set(WAR_PANIC "-Wall -Wextra -pedantic")
 
@@ -23,8 +42,8 @@ set(RES_BIN ${CMAKE_BINARY_DIR}/res)
 
 add_subdirectory(${RES_DIR})
 
-set(BUILD_SHARED_LIBS OFF)  # Turn off shared library builds
-add_subdirectory(${CMAKE_SOURCE_DIR}/raylib-master)
+# set(BUILD_SHARED_LIBS OFF)  # Turn off shared library builds
+# add_subdirectory(${CMAKE_SOURCE_DIR}/raylib-master)
 
 add_executable(CardMatching src/main.cpp)
 
