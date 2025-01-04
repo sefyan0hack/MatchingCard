@@ -110,14 +110,14 @@ int main(int argc, char** argv){
         if (isNotC) {
             auto stemDir = e.path();
 
-            std::filesystem::path relativePath = fs::relative(stemDir, root, ER_code);
+            fs::path relativePath = fs::relative(stemDir, root, ER_code);
             if(ER_code) WHY;
 
             if (relativePath == stemDir) {
                 relativePath = fs::path(e.path().filename().string());
             }
 
-            std::filesystem::path newDirPath = "c" / relativePath;
+            fs::path newDirPath = "c" / relativePath;
 
             try {
                 fs::create_directories(newDirPath, ER_code);
@@ -137,7 +137,7 @@ int main(int argc, char** argv){
                 if(ER_code) WHY;
 
                 if (isdir) {
-                    std::filesystem::path newSubDirPath = "c" / fs::relative(ee.path(), root);
+                    fs::path newSubDirPath = "c" / fs::relative(ee.path(), root);
                     try {
                         fs::create_directories(newSubDirPath);
                         if(ER_code) WHY;
@@ -322,12 +322,12 @@ bool sameLastWrite(const fs::path& lhs, const fs::path& rhs){
         auto latwrite_r = fs::last_write_time(rhs);
 
         auto sctplatwrite_l = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
-            latwrite_l - std::filesystem::file_time_type::clock::now()
+            latwrite_l - fs::file_time_type::clock::now()
             + std::chrono::system_clock::now()
         );
 
         auto sctplatwrite_r = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
-            latwrite_r - std::filesystem::file_time_type::clock::now()
+            latwrite_r - fs::file_time_type::clock::now()
             + std::chrono::system_clock::now()
         );
 
