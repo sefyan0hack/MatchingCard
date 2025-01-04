@@ -159,15 +159,13 @@ int main(){
 
                     auto mousePos = GetMousePosition();
                     if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                        if(showWrong == false){
-                            PlaySound(clickSound);
-                        }
 
                         //check if i pressed on the card to push it
                         if(CheckCollisionPointRec(mousePos, curr)){
                             if ( not card.active && showWrong == false)
                             {
                                 GoodMatsh.push_back( std::make_tuple( card.id, Vector2 {x, y}, &card.active ) );
+                                PlaySound(clickSound);
                             }
                         }
 
