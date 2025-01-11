@@ -406,14 +406,11 @@ bool deleteFolder(const fs::path& foldername){
     }
 }
 const char* to_hex_string(unsigned char d) {
-    static const char* hex_digits = "0123456789ABCDEF";
-    static char *result = new char[5];
+    constexpr char hex_digits[] = "0123456789ABCDEF";
+    static char result[] { '0', 'x', 'n', 'n', '\0'};
 
-    result[0] = '0';
-    result[1] = 'x';
     result[2] = hex_digits[(d >> 4) & 0xF];
     result[3] = hex_digits[d & 0xF];
-    result[4] = '\0';
 
     return result;
 }
