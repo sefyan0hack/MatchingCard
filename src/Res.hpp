@@ -13,11 +13,11 @@ struct TexInfo {
 
 inline static std::vector<TexInfo> ui;
 
-bool contains(const char* str, const char* subStr) {
+auto contains(const char* str, const char* subStr) -> bool {
     return std::strstr(str, subStr) != nullptr;
 }
 
-constexpr bool is_eq_cstr(const char* str1, const char* str2) {
+constexpr auto is_eq_cstr(const char* str1, const char* str2) -> bool {
     while (*str1 && (*str1 == *str2)) {
         ++str1;
         ++str2;
@@ -25,7 +25,7 @@ constexpr bool is_eq_cstr(const char* str1, const char* str2) {
     return *str1 == *str2;
 }
 
-Texture2D LoadTextureFromMemWithSize(Resource r, int width, int height) {
+auto LoadTextureFromMemWithSize(Resource r, int width, int height) -> Texture2D {
     Image img = LoadImageFromMemory(".png", r.data, r.size);
     ImageResize(&img, width, height);
     Texture2D texture = LoadTextureFromImage(img);
@@ -33,7 +33,7 @@ Texture2D LoadTextureFromMemWithSize(Resource r, int width, int height) {
     return texture;
 }
 
-std::vector<TexInfo> GetTexturesfromfolder(const char* foldername, int width=-1, int height=-1){
+auto GetTexturesfromfolder(const char* foldername, int width=-1, int height=-1) -> std::vector<TexInfo> {
     std::vector<TexInfo> result;
 
     std::string path_postfix(foldername);
@@ -60,7 +60,7 @@ std::vector<TexInfo> GetTexturesfromfolder(const char* foldername, int width=-1,
     }
     return result;
 }
-size_t GetTextureCountFromFolder(const char* foldername){
+auto GetTextureCountFromFolder(const char* foldername) -> std::size_t {
     std::string path_postfix(foldername);
     path_postfix += "/";
     size_t count = 0;
@@ -79,7 +79,7 @@ size_t GetTextureCountFromFolder(const char* foldername){
 void Init_Resources(){
     ui = GetTexturesfromfolder("ui");
 }
-const Texture2D& GetUiTex(const char* name){
+auto GetUiTex(const char* name) -> const Texture2D& {
     for (const auto& t : ui)
     {
         if(contains(t.name, name)){
@@ -91,7 +91,7 @@ const Texture2D& GetUiTex(const char* name){
     exit(1);
 }
 
-int GetUiTexWidth(const char* name){
+auto GetUiTexWidth(const char* name) -> int {
     for (const auto& t : ui)
     {
         if(contains(t.name, name)){
@@ -103,7 +103,7 @@ int GetUiTexWidth(const char* name){
     exit(1);
 }
 
-int GetUiTexHeight(const char* name){
+auto GetUiTexHeight(const char* name) -> int {
     for (const auto& t : ui)
     {
         if(contains(t.name, name)){
@@ -115,7 +115,7 @@ int GetUiTexHeight(const char* name){
     exit(1);
 }
 
-Image GetImageFromRes(const char* name){
+auto GetImageFromRes(const char* name) -> Image {
     for (unsigned int i = 0; i < resources_count; i++)
     {
         auto r = resources[i];
@@ -130,7 +130,7 @@ Image GetImageFromRes(const char* name){
     exit(1);
 }
 
-Sound GetSound(const char* name){
+auto GetSound(const char* name) -> Sound {
     for (unsigned int i = 0; i < resources_count; i++)
     {
         auto r = resources[i];

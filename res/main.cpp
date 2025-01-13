@@ -19,14 +19,14 @@ struct ResInfo
     std::string type;
 };
 
-bool between(std::time_t number, std::time_t bound1, std::time_t bound2);
-std::string replaceSymb(const fs::path& path);
-std::string File2Ccode(const fs::path& in, std::ofstream& outFile);
-bool needUpdate(const fs::path& include, const fs::path& rootc);
-bool deleteFolder(const fs::path& foldername);
-bool sameLastWrite(const fs::path& lhs, const fs::path& rhs);
-size_t FileCountFolder(const fs::path& foldername);
-const char* to_hex_string(unsigned char d);
+auto between(std::time_t number, std::time_t bound1, std::time_t bound2) -> bool ;
+auto replaceSymb(const fs::path& path) -> std::string ;
+auto File2Ccode(const fs::path& in, std::ofstream& outFile) -> std::string ;
+auto needUpdate(const fs::path& include, const fs::path& rootc) -> bool ;
+auto deleteFolder(const fs::path& foldername) -> bool ;
+auto sameLastWrite(const fs::path& lhs, const fs::path& rhs) -> bool ;
+auto FileCountFolder(const fs::path& foldername) -> std::size_t ;
+auto to_hex_string(unsigned char d) -> const char* ;
 
 std::error_code  ER_code{};
 
@@ -37,7 +37,7 @@ unsigned int Sound_count = 0;
 
 constexpr const char* FinalIncludeFile = "all_res.hpp";
 
-int main(int argc, char** argv){
+auto main(int argc, char** argv) -> int {
     if(argc < 2){
         ERROR("Usage: " << argv[0] << " <res folser>");
     }
@@ -236,11 +236,11 @@ int main(int argc, char** argv){
         << "\n#undef inline";
 }
 
-bool between(std::time_t number, std::time_t bound1, std::time_t bound2) {
+auto between(std::time_t number, std::time_t bound1, std::time_t bound2) -> bool {
     return number >= std::min(bound1, bound2) && number <= std::max(bound1, bound2);
 }
 
-std::string replaceSymb(const fs::path& path){
+auto replaceSymb(const fs::path& path) -> std::string {
     constexpr char UnwantedSym[] = {
         '\\', '/', '.' ,' ', '!', '!', '"', '@', '#', '$', '%', '&', '*', '(',')', '-', '=', '+', '`', ';', '~', '[', ']', '{', '}'
     };
@@ -254,7 +254,7 @@ std::string replaceSymb(const fs::path& path){
     return name;
 }
 
-std::string File2Ccode(const fs::path& in, std::ofstream& outFile){
+auto File2Ccode(const fs::path& in, std::ofstream& outFile) -> std::string {
 
     auto all_no_ext = in.parent_path() / in.stem();
     auto arr_name = replaceSymb(all_no_ext);
@@ -294,7 +294,7 @@ std::string File2Ccode(const fs::path& in, std::ofstream& outFile){
     return arr_name;
 }
 
-size_t FileCountFolder(const fs::path& foldername){
+auto FileCountFolder(const fs::path& foldername) -> std::size_t {
     auto it = fs::directory_iterator(foldername, fs::directory_options::skip_permission_denied, ER_code);
     if(ER_code) WHY;
 
@@ -312,7 +312,7 @@ size_t FileCountFolder(const fs::path& foldername){
     return count;
 }
 
-bool sameLastWrite(const fs::path& lhs, const fs::path& rhs){
+auto sameLastWrite(const fs::path& lhs, const fs::path& rhs) -> bool{
     auto bothexist = fs::exists(lhs) && fs::exists(lhs);
     if(ER_code) WHY;
 
@@ -343,7 +343,7 @@ bool sameLastWrite(const fs::path& lhs, const fs::path& rhs){
 
     return false;
 }
-bool needUpdate(const fs::path& include, const fs::path& root) {
+auto needUpdate(const fs::path& include, const fs::path& root) -> bool {
     auto it = fs::recursive_directory_iterator(root, fs::directory_options::skip_permission_denied, ER_code);
     if(ER_code) WHY;
     auto root_c = root / "c";
@@ -388,7 +388,7 @@ bool needUpdate(const fs::path& include, const fs::path& root) {
     return false;
 }
 
-bool deleteFolder(const fs::path& foldername){
+auto deleteFolder(const fs::path& foldername) -> bool {
     auto folderExist = fs::exists(foldername, ER_code);
     if(ER_code) WHY;
     
@@ -405,7 +405,7 @@ bool deleteFolder(const fs::path& foldername){
         return false;
     }
 }
-const char* to_hex_string(unsigned char d) {
+auto to_hex_string(unsigned char d) -> const char* {
     constexpr char hex_digits[] = "0123456789ABCDEF";
     static char result[] { '0', 'x', 'n', 'n', '\0'};
 

@@ -27,7 +27,7 @@ struct Card
     bool active;
 };
 
-int main(){
+auto main() -> int{
     
     const char* GameName = "Hello, Raylib";
 
